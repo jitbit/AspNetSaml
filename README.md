@@ -25,6 +25,7 @@ string url = request.GetRedirectUrl(samlEndpoint);
 **3.** To validate the SAML response you recieved from the provider (for example, in an MVC app):
 
 ```c#
+//ASP.NET MVC action method... But you modify the code for Web-forms etc.
 public ActionResult SamlConsume()
 {
 	//specify the certificate you got from your SAML provider
