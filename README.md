@@ -1,6 +1,6 @@
 # AspNetSaml
 
-Very simple SAML 2.0 "consumer" implementation (i.e. allows adding SAML single-sign-on to your app, *not* to provide auth services to other apps).
+Very simple SAML 2.0 "consumer" implementation (i.e. allows adding SAML single-sign-on to your ASP.NET/C# app, *not* to provide auth services to other apps).
 
 Consists of **one short C# file** you can throw into your project and start using it. Originally forked from OneLogin's library, but we had to fix a lot of stuff...
 
