@@ -22,7 +22,7 @@ var request = new AuthRequest(
 string url = request.GetRedirectUrl(samlEndpoint);
 //then send your user to this "url" var
 ```
-**3.** To validate the SAML response you recieved from the provider (for example, in an MVC app):
+**3.** To validate the SAML response (assertion) you recieved from the provider (for example, in an MVC app):
 
 ```c#
 //ASP.NET MVC action method... But you modify the code for Web-forms etc.
