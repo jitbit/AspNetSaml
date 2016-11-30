@@ -56,3 +56,6 @@ BLAHBLAH123543==
 	}
 }
 ```
+
+
+A version of this library has been used for years in production in our [helpdesk app](https://www.jitbit.com/hosted-helpdesk/).
