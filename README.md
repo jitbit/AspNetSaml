@@ -20,7 +20,7 @@ var request = new AuthRequest(
 	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where the provider will send authenticated users back
 	);
 string url = request.GetRedirectUrl(samlEndpoint);
-//then send your user to this url var
+//then send your user to this "url" var
 ```
 **3.** To validate the SAML response you recieved from the provider (for example, in an MVC app):
 
@@ -29,7 +29,7 @@ string url = request.GetRedirectUrl(samlEndpoint);
 public ActionResult SamlConsume()
 {
 	//specify the certificate you got from your SAML provider
-	samlCertificate = @"-----BEGIN CERTIFICATE-----
+	string samlCertificate = @"-----BEGIN CERTIFICATE-----
 BLAHBLAH123543==
 -----END CERTIFICATE-----";
 
