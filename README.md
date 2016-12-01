@@ -28,13 +28,13 @@ string url = request.GetRedirectUrl(samlEndpoint);
 //ASP.NET MVC action method... But you modify the code for Web-forms etc.
 public ActionResult SamlConsume()
 {
-	//specify the certificate you got from your SAML provider
+	//specify the certificate that your SAML provider has given to you
 	string samlCertificate = @"-----BEGIN CERTIFICATE-----
-BLAHBLAH123543==
+BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 -----END CERTIFICATE-----";
 
 	Saml.Response samlResponse = new Response(samlCertificate);
-	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]);
+	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]); //SAML providers usually POST the data here
 
 	if (samlResponse.IsValid())
 	{
