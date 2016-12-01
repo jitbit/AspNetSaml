@@ -1,3 +1,9 @@
+/*	Jitbit's simple SAML 2.0 component for ASP.NET
+	https://github.com/jitbit/AspNetSaml/
+	(c) Jitbit LP, 2016
+	Use this freely under the MIT license (see http://choosealicense.com/licenses/mit/)
+*/
+
 using System;
 using System.Web;
 using System.IO;
