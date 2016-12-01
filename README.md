@@ -38,6 +38,9 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 	if (samlResponse.IsValid())
 	{
+		//WOOHOO!!! user is logged in
+		
+		//lets extract username/firstname etc
 		string username, email, firstname, lastname;
 		try
 		{
@@ -52,7 +55,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 			return null;
 		}
 		
-		//user has been authenticated, put your code here
+		//user has been authenticated, put your code here, like set a cookie or something...
 	}
 }
 ```
