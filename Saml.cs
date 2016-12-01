@@ -120,7 +120,18 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return signedXml.CheckSignature(_certificate.cert, true);
+			return signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
+		}
+
+		private bool IsExpired()
+		{
+			DateTime expirationDate = DateTime.MaxValue;
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", GetNamespaceManager(_xmlDoc));
+			if (node != null && node.Attributes["NotOnOrAfter"] != null)
+			{
+				DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
+			}
+			return DateTime.UtcNow > expirationDate.ToUniversalTime();
 		}
 
 		public string GetNameID()
