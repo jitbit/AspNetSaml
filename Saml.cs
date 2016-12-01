@@ -17,7 +17,9 @@ using System.Security.Cryptography;
 namespace Saml
 {
 	/// <summary>
-	/// this class adds support of SHA256 signing to .NET 4.0 and earlier (you can use it in .NET 4.5 too, if you don't want a "System.Deployment" dependency)
+	/// this class adds support of SHA256 signing to .NET 4.0 and earlier
+	/// (you can use it in .NET 4.5 too, if you don't want a "System.Deployment" dependency)
+	/// call the "Init()" method somewhere in your app, like in "Global.asax"
 	/// </summary>
 	public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	{
@@ -233,6 +235,7 @@ namespace Saml
 			}
 		}
 
+		//returns the URL you should redirect your users to (i.e. your SAML-provider login URL with the Base64-ed request in the querystring
 		public string GetRedirectUrl(string samlEndpoint)
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
