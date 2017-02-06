@@ -13,14 +13,17 @@ Saml.RSAPKCS1SHA256SignatureDescription.Init();
 **2.** To redirect the user to the saml provider:
 ```c#
 //specify the SAML provider url here
-samlEndpoint = "http://saml-provider-that-we-use.com/login/";
+var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 var request = new AuthRequest(
-	"http://issuerUrl", //put your app's unique ID here
-	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where the provider will send authenticated users back
+	"http://www.myapp.com", //put your app's "unique ID" here
+	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users after authenticating them
 	);
 string url = request.GetRedirectUrl(samlEndpoint);
-//then send your user to this "url" var
+
+//then redirect your user to the above "url" var
+//for example, like this:
+Response.Redirect(url);
 ```
 **3.** To validate the SAML response (assertion) you recieved from the provider (for example, in an MVC app):
 
