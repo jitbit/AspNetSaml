@@ -57,10 +57,12 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 		catch(Exception ex)
 		{
 			//insert error handling code
+			//no, really, please do
 			return null;
 		}
 		
 		//user has been authenticated, put your code here, like set a cookie or something...
+		//or call FormsAuthentication.SetAuthCookie() or something
 	}
 }
 ```
