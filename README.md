@@ -8,7 +8,7 @@ Consists of **one short C# file** you can throw into your project and start usin
 
 **1.** Call this once in your app, for example in Global.asax:
 ```c#
-Saml.RSAPKCS1SHA256SignatureDescription.Init();
+Saml.RSAPKCS1SHA256SignatureDescription.Init(); //needed for earlier .NET versions where SHA256 signing is not enabled by default
 ```
 **2.** To redirect the user to the saml provider:
 ```c#
