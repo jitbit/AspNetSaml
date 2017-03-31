@@ -17,7 +17,7 @@ var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 var request = new AuthRequest(
 	"http://www.myapp.com", //put your app's "unique ID" here
-	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users after authenticating them
+	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users BACK
 	);
 string url = request.GetRedirectUrl(samlEndpoint);
 
@@ -37,12 +37,14 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 -----END CERTIFICATE-----";
 
 	Saml.Response samlResponse = new Response(samlCertificate);
-	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]); //SAML providers usually POST the data here
+	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]); //SAML providers usually POST the data into this var
 
 	if (samlResponse.IsValid())
 	{
 		//WOOHOO!!! user is logged in
+		//YAY!
 		
+		//Some more optional stuff for you
 		//lets extract username/firstname etc
 		string username, email, firstname, lastname;
 		try
