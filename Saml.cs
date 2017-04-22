@@ -51,10 +51,12 @@ namespace Saml
 			return formatter;
 		}
 
-		//call this method somewhere, like in Global.asax for a web.app, or in Main(string[] args) for a Windows app.
+		private static bool _initialized = false;
 		public static void Init()
 		{
-			CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+			if(!_initialized)
+				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+			_initialized = true;
 		}
 	}
 
@@ -94,6 +96,8 @@ namespace Saml
 
 		public Response(string certificateStr)
 		{
+			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
+
 			_certificate = new Certificate();
 			_certificate.LoadCertificate(certificateStr);
 		}
@@ -203,6 +207,8 @@ namespace Saml
 
 		public AuthRequest(string issuer, string assertionConsumerServiceUrl)
 		{
+			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
+
 			_id = "_" + System.Guid.NewGuid().ToString();
 			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 
