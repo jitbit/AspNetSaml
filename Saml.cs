@@ -2,6 +2,7 @@
 	https://github.com/jitbit/AspNetSaml/
 	(c) Jitbit LP, 2016
 	Use this freely under the MIT license (see http://choosealicense.com/licenses/mit/)
+	version 1.1
 */
 
 using System;

@@ -8,7 +8,7 @@ Consists of **one short C# file** you can throw into your project and start usin
 
 **1.** Call this once in your app, for example in Global.asax:
 ```c#
-Saml.RSAPKCS1SHA256SignatureDescription.Init();
+Saml.RSAPKCS1SHA256SignatureDescription.Init(); //needed for earlier .NET versions where SHA256 signing is not enabled by default
 ```
 **2.** To redirect the user to the saml provider:
 ```c#
@@ -17,7 +17,7 @@ var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 var request = new AuthRequest(
 	"http://www.myapp.com", //put your app's "unique ID" here
-	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users after authenticating them
+	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users BACK
 	);
 string url = request.GetRedirectUrl(samlEndpoint);
 
@@ -37,12 +37,14 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 -----END CERTIFICATE-----";
 
 	Saml.Response samlResponse = new Response(samlCertificate);
-	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]); //SAML providers usually POST the data here
+	samlResponse.LoadXmlFromBase64(Request.Form["SAMLResponse"]); //SAML providers usually POST the data into this var
 
 	if (samlResponse.IsValid())
 	{
 		//WOOHOO!!! user is logged in
+		//YAY!
 		
+		//Some more optional stuff for you
 		//lets extract username/firstname etc
 		string username, email, firstname, lastname;
 		try
@@ -55,10 +57,12 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 		catch(Exception ex)
 		{
 			//insert error handling code
+			//no, really, please do
 			return null;
 		}
 		
 		//user has been authenticated, put your code here, like set a cookie or something...
+		//or call FormsAuthentication.SetAuthCookie() or something
 	}
 }
 ```
