@@ -6,26 +6,23 @@ Consists of **one short C# file** you can throw into your project and start usin
 
 ## Usage
 
-**1.** Call this once in your app, for example in Global.asax:
+**1.** To redirect the user to the saml provider:
 ```c#
-Saml.RSAPKCS1SHA256SignatureDescription.Init(); //needed for earlier .NET versions where SHA256 signing is not enabled by default
-```
-**2.** To redirect the user to the saml provider:
-```c#
-//specify the SAML provider url here
+//specify the SAML provider url here, aka "Endpoint"
 var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 var request = new AuthRequest(
 	"http://www.myapp.com", //put your app's "unique ID" here
 	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users BACK
 	);
+	
 string url = request.GetRedirectUrl(samlEndpoint);
 
 //then redirect your user to the above "url" var
 //for example, like this:
 Response.Redirect(url);
 ```
-**3.** To validate the SAML response (assertion) you recieved from the provider (for example, in an MVC app):
+**2.** After the user has been authenticated and redirected back to your app - you need to validate the SAML response (assertion) you have recieved from the provider (for example, in an MVC app):
 
 ```c#
 //ASP.NET MVC action method... But you can easily modify the code for Web-forms etc.
