@@ -2,7 +2,7 @@
 	https://github.com/jitbit/AspNetSaml/
 	(c) Jitbit LP, 2016
 	Use this freely under the MIT license (see http://choosealicense.com/licenses/mit/)
-	version 1.1
+	version 1.2
 */
 
 using System;
@@ -127,7 +127,26 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
+			return ValidateSignatureReference(signedXml, _xmlDoc.DocumentElement) && signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
+		}
+
+		//an XML signature can "cover" not the whole document, but only a part of it
+		//.NET's built in "CheckSignature" does not cover this case, it will validate to true.
+		//We should check the signature reference, so it "references" the id of the root document element! If not - it's a hack
+		private static bool ValidateSignatureReference(SignedXml signedXml, XmlElement xmlElement)
+		{
+			if (signedXml.SignedInfo.References.Count != 1) //no ref at all
+				return false;
+
+			var reference = (Reference)signedXml.SignedInfo.References[0];
+			var id = reference.Uri.Substring(1);
+
+			var idElement = signedXml.GetIdElement(xmlElement.OwnerDocument, id);
+
+			if (idElement != xmlElement)
+				return false;
+
+			return true;
 		}
 
 		private bool IsExpired()
@@ -176,6 +195,26 @@ namespace Saml
 			//some providers (for example Azure AD) put email into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
+		public string GetDepartment()
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
+		public string GetPhone()
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone']/saml:AttributeValue", _xmlNameSpaceManager);
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
+		public string GetCompany()
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname']/saml:AttributeValue", _xmlNameSpaceManager);
 			return node == null ? null : node.InnerText;
 		}
 
