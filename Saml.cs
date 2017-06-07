@@ -127,13 +127,13 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return ValidateSignatureReference(signedXml, _xmlDoc.DocumentElement) && signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
+			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
 		}
 
 		//an XML signature can "cover" not the whole document, but only a part of it
 		//.NET's built in "CheckSignature" does not cover this case, it will validate to true.
 		//We should check the signature reference, so it "references" the id of the root document element! If not - it's a hack
-		private static bool ValidateSignatureReference(SignedXml signedXml, XmlElement xmlElement)
+		private bool ValidateSignatureReference(SignedXml signedXml)
 		{
 			if (signedXml.SignedInfo.References.Count != 1) //no ref at all
 				return false;
@@ -141,10 +141,16 @@ namespace Saml
 			var reference = (Reference)signedXml.SignedInfo.References[0];
 			var id = reference.Uri.Substring(1);
 
-			var idElement = signedXml.GetIdElement(xmlElement.OwnerDocument, id);
+			var idElement = signedXml.GetIdElement(_xmlDoc, id);
 
-			if (idElement != xmlElement)
-				return false;
+			if (idElement == _xmlDoc.DocumentElement)
+				return true;
+			else //sometimes its not the "root" doc-element that is being signed, but the "assertion" element
+			{
+				var assertionNode = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion", _xmlNameSpaceManager) as XmlElement;
+				if (assertionNode != idElement)
+					return false;
+			}
 
 			return true;
 		}
