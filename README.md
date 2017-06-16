@@ -22,7 +22,9 @@ string url = request.GetRedirectUrl(samlEndpoint);
 //for example, like this:
 Response.Redirect(url);
 ```
-**2.** After the user has been authenticated and redirected back to your app - you need to validate the SAML response (assertion) you have recieved from the provider (for example, in an MVC app):
+**2.** After the user has been authenticated and **redirected back** to your app - you need to validate the SAML response (assertion) you have recieved from the provider.
+
+Here's an example of how you do it in ASP.NET MVC
 
 ```c#
 //ASP.NET MVC action method... But you can easily modify the code for Web-forms etc.
