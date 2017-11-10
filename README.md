@@ -66,5 +66,12 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 }
 ```
 
+# (NEW!) Nuget
+
+I've published this to Nuget.
+
+`Install-Package AspNetSaml`
+
+This will simply add the cs-file to the root of your project.
 
 A version of this library has been used for years in production in our [helpdesk app](https://www.jitbit.com/hosted-helpdesk/).
