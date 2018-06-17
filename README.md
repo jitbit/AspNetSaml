@@ -6,7 +6,17 @@ Consists of **one short C# file** you can throw into your project (or [install v
 
 ## Usage
 
-**1.** To redirect the user to the saml provider:
+### How SAML works?
+
+SAML workflow has 2 steps:
+
+1. User is redirected to the SAML provider (where he authenticates)
+1. User is redirected back to your app, where you validate the payload
+
+Here's how you do it:
+
+### 1. Redirecting the user to the saml provider:
+
 ```c#
 //specify the SAML provider url here, aka "Endpoint"
 var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
@@ -23,7 +33,10 @@ string url = request.GetRedirectUrl(samlEndpoint);
 //for example, like this:
 Response.Redirect(url);
 ```
-**2.** After the user has been authenticated and **redirected back** to your app - you need to validate the SAML response (assertion) you have recieved from the provider.
+
+### 2. User has been redirected back
+
+User is sent back to your app - you need to validate the SAML response ("assertion") that you recieved via POST.
 
 Here's an example of how you do it in ASP.NET MVC
 
