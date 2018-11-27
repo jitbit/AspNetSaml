@@ -80,6 +80,10 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 }
 ```
 
+# Dependencies
+
+Project should reference `System.Security`
+
 # (NEW!) Nuget
 
 I've published this to Nuget.
