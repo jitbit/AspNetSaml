@@ -1,28 +1,42 @@
 # AspNetSaml
 
-Very simple SAML 2.0 "consumer" implementation in C# (i.e. allows adding SAML single-sign-on to your ASP.NET app, but *not* to provide auth services to other apps).
+Very simple SAML 2.0 "consumer" implementation in C#. It's a *SAML client* library, not a *SAML server*, allows adding SAML single-sign-on to your ASP.NET app, but *not* to provide auth services to other apps.
 
-Consists of **one short C# file** you can throw into your project and start using it. Originally forked from OneLogin's .NET SAML library, but we had to fix a lot of stuff...
+Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it. Originally forked from OneLogin's .NET SAML library, but we had to fix a lot of stuff...
 
 ## Usage
 
-**1.** To redirect the user to the saml provider:
+### How SAML works?
+
+SAML workflow has 2 steps:
+
+1. User is redirected to the SAML provider (where he authenticates)
+1. User is redirected back to your app, where you validate the payload
+
+Here's how you do it:
+
+### 1. Redirecting the user to the saml provider:
+
 ```c#
 //specify the SAML provider url here, aka "Endpoint"
 var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 var request = new AuthRequest(
 	"http://www.myapp.com", //put your app's "unique ID" here
-	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the URL where provider will redirect authenticated users BACK
+	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the redirect URL where the provider will send authenticated users
 	);
 	
+//generate the provider URL
 string url = request.GetRedirectUrl(samlEndpoint);
 
 //then redirect your user to the above "url" var
 //for example, like this:
 Response.Redirect(url);
 ```
-**2.** After the user has been authenticated and **redirected back** to your app - you need to validate the SAML response (assertion) you have recieved from the provider.
+
+### 2. User has been redirected back
+
+User is sent back to your app - you need to validate the SAML response ("assertion") that you recieved via POST.
 
 Here's an example of how you do it in ASP.NET MVC
 
@@ -66,5 +80,16 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 }
 ```
 
+# Dependencies
+
+Project should reference `System.Security`
+
+# (NEW!) Nuget
+
+I've published this to Nuget.
+
+`Install-Package AspNetSaml`
+
+This will simply add the cs-file to the root of your project.
 
 A version of this library has been used for years in production in our [helpdesk app](https://www.jitbit.com/hosted-helpdesk/).
