@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "saml.Test", "saml.Test\saml.Test.csproj", "{F318FD60-56B1-4115-9AF8-EE189877685D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saml", "..\Saml\Saml.csproj", "{BD60888A-63CB-4256-8B6F-BBDD6197DB66}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F318FD60-56B1-4115-9AF8-EE189877685D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F318FD60-56B1-4115-9AF8-EE189877685D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F318FD60-56B1-4115-9AF8-EE189877685D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F318FD60-56B1-4115-9AF8-EE189877685D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD60888A-63CB-4256-8B6F-BBDD6197DB66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD60888A-63CB-4256-8B6F-BBDD6197DB66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD60888A-63CB-4256-8B6F-BBDD6197DB66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD60888A-63CB-4256-8B6F-BBDD6197DB66}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E1C61BB8-6708-4E47-A120-90C800B7AD42}
+	EndGlobalSection
+EndGlobal

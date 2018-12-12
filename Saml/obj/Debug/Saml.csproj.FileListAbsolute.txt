@@ -1,0 +1,6 @@
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\bin\Debug\Saml.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\bin\Debug\Saml.pdb
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\obj\Debug\Saml.csprojAssemblyReference.cache
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\obj\Debug\Saml.csproj.CoreCompileInputs.cache
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\obj\Debug\Saml.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\Saml\obj\Debug\Saml.pdb

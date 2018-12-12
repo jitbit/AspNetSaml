@@ -1,0 +1,16 @@
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\obj\Debug\saml.Test.csprojAssemblyReference.cache
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\obj\Debug\saml.Test.csproj.CoreCompileInputs.cache
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\saml.Test.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\saml.Test.pdb
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Saml.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\bin\Debug\Saml.pdb
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\obj\Debug\saml.Test.csproj.CopyComplete
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\obj\Debug\saml.Test.dll
+C:\Users\matthewt\Documents\Git Projects\AspNetSaml\saml.Test\saml.Test\obj\Debug\saml.Test.pdb

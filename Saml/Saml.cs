@@ -14,14 +14,15 @@ using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace Saml
 {
-	/// <summary>
-	/// this class adds support of SHA256 signing to .NET 4.0 and earlier
-	/// (you can use it in .NET 4.5 too, if you don't want a "System.Deployment" dependency)
-	/// </summary>
-	public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
+    /// <summary>
+    /// this class adds support of SHA256 signing to .NET 4.0 and earlier
+    /// (you can use it in .NET 4.5 too, if you don't want a "System.Deployment" dependency)
+    /// </summary>
+    public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	{
 		public RSAPKCS1SHA256SignatureDescription()
 		{
@@ -69,11 +70,17 @@ namespace Saml
 			LoadCertificate(StringToByteArray(certificate));
 		}
 
-		public void LoadCertificate(byte[] certificate)
-		{
-			cert = new X509Certificate2();
-			cert.Import(certificate);
-		}
+        public void LoadCertificate(byte[] certificate)
+        {
+            try
+            {
+                cert = new X509Certificate2();
+                cert.Import(certificate);
+            } catch (Exception ex)
+            {
+                throw new LoadCertificateException("Failed to load certificate", ex);
+            }
+        }
 
 		private byte[] StringToByteArray(string st)
 		{
@@ -85,6 +92,13 @@ namespace Saml
 			return bytes;
 		}
 	}
+
+    public class LoadCertificateException : Exception
+    {
+        public LoadCertificateException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 
 	public class Response
 	{
@@ -107,8 +121,8 @@ namespace Saml
 			_xmlDoc = new XmlDocument();
 			_xmlDoc.PreserveWhitespace = true;
 			_xmlDoc.XmlResolver = null;
-			_xmlDoc.LoadXml(xml);
-
+            _xmlDoc.LoadXml(xml);
+			
 			_xmlNameSpaceManager = GetNamespaceManager(); //lets construct a "manager" for XPath queries
 		}
 
@@ -120,7 +134,16 @@ namespace Saml
 
 		public bool IsValid()
 		{
-			XmlNodeList nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
+            XmlNodeList nodeList;
+            
+            // We don't want an exception to be thrown from this class.
+            try
+            {
+                nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
+            } catch (Exception exception)
+            {
+                return false;
+            }
 
 			SignedXml signedXml = new SignedXml(_xmlDoc);
 
@@ -171,6 +194,12 @@ namespace Saml
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:Subject/saml:NameID", _xmlNameSpaceManager);
 			return node.InnerText;
 		}
+
+        public string GetDisplayName()
+        {
+            XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.microsoft.com/identity/claims/displayname']/saml:AttributeValue", _xmlNameSpaceManager);
+            return node == null ? null : node.InnerText;
+        }
 
 		public string GetEmail()
 		{
@@ -223,6 +252,21 @@ namespace Saml
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname']/saml:AttributeValue", _xmlNameSpaceManager);
 			return node == null ? null : node.InnerText;
 		}
+
+        public List<string> GetGroups()
+        {
+            // this is only valid for azure claims.
+            XmlNodeList node_list = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.microsoft.com/ws/2008/06/identity/claims/groups']/saml:AttributeValue", _xmlNameSpaceManager);
+
+            List<string> group_ids = new List<string>();
+
+            foreach (XmlNode node in node_list)
+            {
+                group_ids.Add(node.InnerText);
+            }
+
+            return group_ids;
+        }
 
 		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
 		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary

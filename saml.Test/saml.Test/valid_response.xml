@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="_7fde3471-967b-4c5f-9b2b-efaa586bb8f5" Version="2.0" IssueInstant="2018-12-05T05:45:42.554Z" Destination="https://localhost:44376/Home/WelcomeUser" InResponseTo="_3d89261c-e59d-4b80-b65f-74a921075798">
+  <Issuer xmlns="urn:oasis:names:tc:SAML:2.0:assertion">https://sts.windows.net/86c4efd3-7f59-4e51-8f64-6d7848dfcaef/</Issuer>
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+  </samlp:Status>
+  <Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="_a46864cb-7e92-4043-bbbf-67fe24ca4285" IssueInstant="2018-12-05T05:45:42.554Z" Version="2.0">
+    <Issuer>https://sts.windows.net/86c4efd3-7f59-4e51-8f64-6d7848dfcaef/</Issuer>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <SignedInfo>
+        <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+        <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+        <Reference URI="#_a46864cb-7e92-4043-bbbf-67fe24ca4285">
+          <Transforms>
+            <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+            <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+          </Transforms>
+          <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+          <DigestValue>IOk88Etjov5ku13VLJ6gHZTspGvfOCkj3QYbLDddWWM=</DigestValue>
+        </Reference>
+      </SignedInfo>
+      <SignatureValue>bLILLBmtwtuRfMLK/ihXIsHi41ajS//K/vNiGH82K+uvPW9TRujpzJv2FwGeLCCcs2AC9KqNkWDiE3O1XCOMeLhs8v/VtlciQSab7WheXRq+b7W7LObQzBr3saqxqpyowdQoN1QdkzCzQCkL+zEO/n+Lu6zqqCSykeCacNPmAqSRvMqJT/hxhZV7Zavlj67T9xW6WIJk3+Zwc4uUDyiQTY3HGiEBPWmGaW2lSJV/erMvFNH2zyBex8cPYbD2Ze8NVkVu0g7GChoE4+bJfZyUCKWUN/BRzeX2HaDOFYZAPG1VbOXHIRcc1SxHKOnHD1iXLakzWuNrE8kuTGcIu7undw==</SignatureValue>
+      <KeyInfo>
+        <X509Data>
+          <X509Certificate>MIIC8DCCAdigAwIBAgIQFRsCueNmH6dLF0CkDs5zIzANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQDEylNaWNyb3NvZnQgQXp1cmUgRmVkZXJhdGVkIFNTTyBDZXJ0aWZpY2F0ZTAeFw0xODEyMDMwMTQ4MjVaFw0yMTEyMDMwMTQ4MjVaMDQxMjAwBgNVBAMTKU1pY3Jvc29mdCBBenVyZSBGZWRlcmF0ZWQgU1NPIENlcnRpZmljYXRlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx8WKyZTYdJcCB8Yh2Y/cs1U1/DXgNc//Wt9JROTv95j1YEtkLMY1/F2hyBKql9Ypn1i2Zv7d2cQ85GGnVYi3tKiELpgXzc9eebyYholNbAgFO7kL2Zum2gUvHAWXB8qSIisJWTU46fCZ/0VUy8I+/j0S9q2Ats1slK1+rZ7KixOXq/taRMI9f0xo8l5EIpaQiMPw5NdcLLZXwPaYK973+ec3CtuauHHgGHN8jmgvA0LSWBlvzAsjcFLb+TCthQxsCPmws/1P8KRln7RxjJqbeIdt5TslbgmxSJ7pAlsb+8qUPoYRlpwIsERX94kZq/NqwAtgH58ruVDz8zrn8aH8fQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAtIGv9jyjF4wxS8LTxw/tfJi3jOr5Z54DRY3z1oKRtEvz907fIL9oRNhL4L+VsEyi1dGMqFAbysY8z7Pe5f/Za1RwSEVF5RjxHydnckLaguquZwfLGBHtJnCeF2LeAVS1WbWowCNjiOJ9l/q+BCzlXZRTV4S9TrXp33hGYob6owgiz1CflTYIfj6h/yyM80QBaQwa4zNjS4UbgHb+SK+x/YH/BY6SFB9WqqSUbwPTkxGKNxC/A8CX8tpSXlVyXjN2Y7UsDaCkj/TGRSatTqPA6GIKx3AQMAvs/wkla2iHWoQYEn/fN6Mwc10i7M4AevA81unr4TOQQAYtnBQT4DCGs</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+    </Signature>
+    <Subject>
+      <NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">george@george.com</NameID>
+      <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+        <SubjectConfirmationData InResponseTo="_3d89261c-e59d-4b80-b65f-74a921075798" NotOnOrAfter="2018-12-05T05:50:42.554Z" Recipient="https://localhost:44376/Home/WelcomeUser" />
+      </SubjectConfirmation>
+    </Subject>
+    <Conditions NotBefore="2018-12-05T05:40:42.554Z" NotOnOrAfter="2018-12-05T06:40:42.554Z">
+      <AudienceRestriction>
+        <Audience>spn:15eedc3e-ead5-47c8-8424-a98027d91da7</Audience>
+      </AudienceRestriction>
+    </Conditions>
+    <AttributeStatement>
+      <Attribute Name="http://schemas.microsoft.com/identity/claims/tenantid">
+        <AttributeValue>86c4efd3-7f59-4e51-8f64-6d7848dfcaef</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/identity/claims/objectidentifier">
+        <AttributeValue>d0da4e9e-3609-4f53-aaeb-2f3f58478ce2</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/identity/claims/displayname">
+        <AttributeValue>George Willy</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/ws/2008/06/identity/claims/groups">
+        <AttributeValue>12345678-testing1-testing2</AttributeValue>
+        <AttributeValue>87654321-testing4-testing3</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/identity/claims/identityprovider">
+        <AttributeValue>https://sts.windows.net/97fb2e3d-d978-44e1-bb74-0aa0109189b5/</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/claims/authnmethodsreferences">
+        <AttributeValue>http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/password</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.microsoft.com/ws/2008/06/identity/claims/wids">
+        <AttributeValue>62e90394-69f5-4237-9190-012177145e10</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname">
+        <AttributeValue>George</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname">
+        <AttributeValue>Willy</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress">
+        <AttributeValue>george@george.com</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name">
+        <AttributeValue>george@george.com</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department">
+        <AttributeValue>Car repairs</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone">
+        <AttributeValue>04567843543</AttributeValue>
+      </Attribute>
+      <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname">
+        <AttributeValue>Displayr</AttributeValue>
+      </Attribute>
+    </AttributeStatement>
+    <AuthnStatement AuthnInstant="2018-12-05T05:45:42.429Z" SessionIndex="_a46864cb-7e92-4043-bbbf-67fe24ca4285">
+      <AuthnContext>
+        <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>
+      </AuthnContext>
+    </AuthnStatement>
+  </Assertion>
+</samlp:Response>
