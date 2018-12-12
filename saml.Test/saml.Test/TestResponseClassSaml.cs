@@ -6,7 +6,7 @@ using System;
 using System.Xml;
 using System.Security.Cryptography.X509Certificates;
 
-namespace webapp_testing
+namespace Saml.Test
 {
     [TestClass]
     public class TestResponseClassSaml
@@ -17,9 +17,9 @@ namespace webapp_testing
         [TestMethod()]
         public void testGetters()
         {
-            Response response = new Response(constants.VALID_CERTIFICATE);
+            Response response = new Response(Constants.VALID_CERTIFICATE);
 
-            string xml_contents = getResourceContents(constants.VALID_XML_RESPONSE_RESOURCE);
+            string xml_contents = getResourceContents(Constants.VALID_XML_RESPONSE_RESOURCE);
 
             response.LoadXml(xml_contents);
 
@@ -55,9 +55,9 @@ namespace webapp_testing
         {
             Response response = null;
 
-            response = new Response(constants.VALID_CERTIFICATE);
+            response = new Response(Constants.VALID_CERTIFICATE);
 
-            string xml_contents = getResourceContents(constants.EMPTY_XML_RESPONSE_RESOURCE);
+            string xml_contents = getResourceContents(Constants.EMPTY_XML_RESPONSE_RESOURCE);
 
             var load_xml_exception = Assert.ThrowsException<XmlException>(() => { response.LoadXml(xml_contents); });
             Assert.IsTrue(load_xml_exception is XmlException);
@@ -72,7 +72,7 @@ namespace webapp_testing
         {
             Response response = null;
 
-            var exception = Assert.ThrowsException<LoadCertificateException>(() => { response = new Response(constants.INVALID_CERTIFICATE);  });
+            var exception = Assert.ThrowsException<LoadCertificateException>(() => { response = new Response(Constants.INVALID_CERTIFICATE);  });
 
             Assert.IsTrue(exception is LoadCertificateException);
         }
@@ -85,9 +85,9 @@ namespace webapp_testing
         { 
             Response response = null;
 
-            response = new Response(constants.VALID_CERTIFICATE);
+            response = new Response(Constants.VALID_CERTIFICATE);
 
-            string xml_contents = getResourceContents(constants.INVALID_XML_RESPONSE_RESOURCE);
+            string xml_contents = getResourceContents(Constants.INVALID_XML_RESPONSE_RESOURCE);
 
             var load_xml_exception = Assert.ThrowsException<XmlException>(() => { response.LoadXml(xml_contents); });
 
@@ -104,7 +104,7 @@ namespace webapp_testing
         {
             Response response = null;
 
-            var exception = Assert.ThrowsException<LoadCertificateException>(() => { response = new Response(constants.EMPTY_CERTIFICATE);  });
+            var exception = Assert.ThrowsException<LoadCertificateException>(() => { response = new Response(Constants.EMPTY_CERTIFICATE);  });
             Assert.IsTrue(exception is LoadCertificateException);
         }
 

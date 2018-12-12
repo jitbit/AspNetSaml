@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace webapp_testing
+namespace Saml.Test
 {
-    class constants
+    class Constants
     {
         public const string VALID_CERTIFICATE = @"-----BEGIN CERTIFICATE-----
 MIIC8DCCAdigAwIBAgIQFRsCueNmH6dLF0CkDs5zIzANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQD
@@ -45,8 +45,8 @@ unr4TOQQAYtnBQT4DCGs
         public const string EMPTY_CERTIFICATE = @"-----BEGIN CERTIFICATE-----
 -----END CERTIFICATE-----";
 
-        public const string VALID_XML_RESPONSE_RESOURCE     = "webapp_testing.valid_response.xml";
-        public const string INVALID_XML_RESPONSE_RESOURCE    = "webapp_testing.invalid_response.xml";
-        public const string EMPTY_XML_RESPONSE_RESOURCE     = "webapp_testing.empty_response.xml";
+        public const string VALID_XML_RESPONSE_RESOURCE = "Saml.Test.valid_response.xml";
+        public const string INVALID_XML_RESPONSE_RESOURCE = "Saml.Test.invalid_response.xml";
+        public const string EMPTY_XML_RESPONSE_RESOURCE = "Saml.Test.empty_response.xml";
     }
 }

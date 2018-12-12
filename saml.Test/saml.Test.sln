@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "saml.Test", "saml.Test\saml.Test.csproj", "{F318FD60-56B1-4115-9AF8-EE189877685D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saml.Test", "saml.Test\Saml.Test.csproj", "{F318FD60-56B1-4115-9AF8-EE189877685D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saml", "..\Saml\Saml.csproj", "{BD60888A-63CB-4256-8B6F-BBDD6197DB66}"
 EndProject
