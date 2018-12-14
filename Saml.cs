@@ -191,6 +191,9 @@ namespace Saml
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname']/saml:AttributeValue", _xmlNameSpaceManager);
 
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.FirstName']/saml:AttributeValue", _xmlNameSpaceManager);
+
 			return node == null ? null : node.InnerText;
 		}
 
@@ -201,6 +204,10 @@ namespace Saml
 			//some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']/saml:AttributeValue", _xmlNameSpaceManager);
+
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.LastName']/saml:AttributeValue", _xmlNameSpaceManager);
+
 			return node == null ? null : node.InnerText;
 		}
 
@@ -221,6 +228,10 @@ namespace Saml
 		public string GetCompany()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname']/saml:AttributeValue", _xmlNameSpaceManager);
+
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.CompanyName']/saml:AttributeValue", _xmlNameSpaceManager);
+
 			return node == null ? null : node.InnerText;
 		}
 
