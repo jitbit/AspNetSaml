@@ -71,8 +71,7 @@ namespace Saml
 
 		public void LoadCertificate(byte[] certificate)
 		{
-			cert = new X509Certificate2();
-			cert.Import(certificate);
+			cert = new X509Certificate2(certificate);
 		}
 
 		private byte[] StringToByteArray(string st)
