@@ -101,6 +101,14 @@ namespace Saml
 			_certificate = new Certificate();
 			_certificate.LoadCertificate(certificateStr);
 		}
+		
+		public Response(byte[] certificateBytes)
+        {
+            RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
+
+            _certificate = new Certificate();
+            _certificate.LoadCertificate(certificateBytes);
+        }
 
 		public void LoadXml(string xml)
 		{
