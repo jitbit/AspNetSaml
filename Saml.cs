@@ -273,7 +273,7 @@ namespace Saml
 			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
 
 			_id = "_" + System.Guid.NewGuid().ToString();
-			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
 			_issuer = issuer;
 			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
