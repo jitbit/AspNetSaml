@@ -18,20 +18,22 @@ Here's how you do it:
 ### 1. Redirecting the user to the saml provider:
 
 ```c#
-//specify the SAML provider url here, aka "Endpoint"
-var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
+public ActionResult Login() {
+	//specify the SAML provider url here, aka "Endpoint"
+	var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
-var request = new AuthRequest(
-	"http://www.myapp.com", //put your app's "unique ID" here
-	"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the redirect URL where the provider will send authenticated users
-	);
-	
-//generate the provider URL
-string url = request.GetRedirectUrl(samlEndpoint);
+	var request = new AuthRequest(
+		"http://www.myapp.com", //put your app's "unique ID" here
+		"http://www.myapp.com/SamlConsume" //assertion Consumer Url - the redirect URL where the provider will send authenticated users
+		);
 
-//then redirect your user to the above "url" var
-//for example, like this:
-Response.Redirect(url);
+	//generate the provider URL
+	string url = request.GetRedirectUrl(samlEndpoint);
+
+	//then redirect your user to the above "url" var
+	//for example, like this:
+	Response.Redirect(url);
+}
 ```
 
 ### 2. User has been redirected back
