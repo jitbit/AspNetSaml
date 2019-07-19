@@ -18,7 +18,8 @@ Here's how you do it:
 ### 1. Redirecting the user to the saml provider:
 
 ```c#
-public ActionResult Login() {
+public ActionResult Login()
+{
 	//specify the SAML provider url here, aka "Endpoint"
 	var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
