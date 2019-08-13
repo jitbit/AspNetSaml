@@ -13,11 +13,12 @@ SAML workflow has 2 steps:
 1. User is redirected to the SAML provider (where he authenticates)
 1. User is redirected back to your app, where you validate the payload
 
-Here's how you do it:
+Here's how you do it (this example is for ASP.NET MVC:
 
 ### 1. Redirecting the user to the saml provider:
 
 ```c#
+//this example is an ASP.NET MVC action method
 public ActionResult Login()
 {
 	//specify the SAML provider url here, aka "Endpoint"
