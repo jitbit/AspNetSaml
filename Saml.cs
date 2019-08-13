@@ -85,11 +85,11 @@ namespace Saml
 		}
 	}
 
-	public class Response
+	public partial class Response
 	{
-		private XmlDocument _xmlDoc;
-		private Certificate _certificate;
-		private XmlNamespaceManager _xmlNameSpaceManager; //we need this one to run our XPath queries on the SAML XML
+		protected XmlDocument _xmlDoc;
+		protected readonly Certificate _certificate;
+		protected XmlNamespaceManager _xmlNameSpaceManager; //we need this one to run our XPath queries on the SAML XML
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
