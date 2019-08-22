@@ -78,6 +78,11 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
+		public Response(string certificateStr, string responseString) : this(StringToByteArray(certificateStr))
+		{
+			LoadXmlFromBase64(responseString);
+		}
+
 		public Response(string certificateStr) : this(StringToByteArray(certificateStr)) { }
 
 		public Response(byte[] certificateBytes)
