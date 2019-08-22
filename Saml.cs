@@ -60,21 +60,9 @@ namespace Saml
 		}
 	}
 
-	public class Certificate
+	public partial class Response
 	{
-		public X509Certificate2 cert;
-
-		public void LoadCertificate(string certificate)
-		{
-			LoadCertificate(StringToByteArray(certificate));
-		}
-
-		public void LoadCertificate(byte[] certificate)
-		{
-			cert = new X509Certificate2(certificate);
-		}
-
-		private byte[] StringToByteArray(string st)
+		private static byte[] StringToByteArray(string st)
 		{
 			byte[] bytes = new byte[st.Length];
 			for (int i = 0; i < st.Length; i++)
@@ -83,30 +71,19 @@ namespace Saml
 			}
 			return bytes;
 		}
-	}
 
-	public partial class Response
-	{
 		protected XmlDocument _xmlDoc;
-		protected readonly Certificate _certificate;
+		protected readonly X509Certificate2 _certificate;
 		protected XmlNamespaceManager _xmlNameSpaceManager; //we need this one to run our XPath queries on the SAML XML
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public Response(string certificateStr)
-		{
-			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
+		public Response(string certificateStr) : this(StringToByteArray(certificateStr)) { }
 
-			_certificate = new Certificate();
-			_certificate.LoadCertificate(certificateStr);
-		}
-		
 		public Response(byte[] certificateBytes)
 		{
 			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
-
-			_certificate = new Certificate();
-			_certificate.LoadCertificate(certificateBytes);
+			_certificate = new X509Certificate2(certificateBytes);
 		}
 
 		public void LoadXml(string xml)
@@ -134,7 +111,7 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate.cert, true) && !IsExpired();
+			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
 		}
 
 		//an XML signature can "cover" not the whole document, but only a part of it
