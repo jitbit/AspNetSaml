@@ -315,11 +315,18 @@ namespace Saml
 		}
 
 		//returns the URL you should redirect your users to (i.e. your SAML-provider login URL with the Base64-ed request in the querystring
-		public string GetRedirectUrl(string samlEndpoint)
+		public string GetRedirectUrl(string samlEndpoint, string relayState = null)
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
 
-			return samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(this.GetRequest(AuthRequest.AuthRequestFormat.Base64));
+			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(this.GetRequest(AuthRequest.AuthRequestFormat.Base64));
+
+			if (!string.IsNullOrEmpty(relayState)) 
+			{
+				url += "&RelayState=" + HttpUtility.UrlEncode(relayState);
+			}
+
+			return url;
 		}
 	}
 }
