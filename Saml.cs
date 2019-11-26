@@ -1,7 +1,7 @@
 /*	Jitbit's simple SAML 2.0 component for ASP.NET
 	https://github.com/jitbit/AspNetSaml/
 	(c) Jitbit LP, 2016
-	Use this freely under the MIT license (see http://choosealicense.com/licenses/mit/)
+	Use this freely under the Apache license (see https://choosealicense.com/licenses/apache-2.0/)
 	version 1.2
 */
 
