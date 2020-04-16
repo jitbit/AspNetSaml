@@ -33,12 +33,8 @@ public ActionResult Login()
 		"http://www.myapp.com/SamlConsume" //TODO: put Assertion Consumer URL (where the provider should redirect users after authenticating)
 		);
 
-	//generate the provider URL
-	string url = request.GetRedirectUrl(samlEndpoint);
-
-	//then redirect your user to the above "url" var
-	//for example, like this:
-	Response.Redirect(url);
+	//redirect the user to the SAML provider
+	Response.Redirect(request.GetRedirectUrl(samlEndpoint););
 }
 ```
 
