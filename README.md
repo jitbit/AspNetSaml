@@ -86,7 +86,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 # Dependencies
 
-Project should reference `System.Security`
+Project should reference NuGet Package `System.Security.Cryptography.Xml`
 
 # (NEW!) Nuget
 
