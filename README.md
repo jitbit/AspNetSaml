@@ -58,29 +58,38 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 	// 3. We're done!
 	if (samlResponse.IsValid())
+		username = samlResponse.GetNameID();
+}
+```
+
+# Reading more attributes form the provider
+
+SAML providers usually send more data with their response: username, first/last names etc. Here's how to get it:
+
+```c#
+if (samlResponse.IsValid())
+{
+	//WOOHOO!!! user is logged in
+
+	//Some more optional stuff for you
+	//let's extract username/firstname etc
+	string username, email, firstname, lastname;
+	try
 	{
-		//WOOHOO!!! user is logged in
-		
-		//Some more optional stuff for you
-		//let's extract username/firstname etc
-		string username, email, firstname, lastname;
-		try
-		{
-			username = samlResponse.GetNameID();
-			email = samlResponse.GetEmail();
-			firstname = samlResponse.GetFirstName();
-			lastname = samlResponse.GetLastName();
-		}
-		catch(Exception ex)
-		{
-			//insert error handling code
-			//no, really, please do
-			return null;
-		}
-		
-		//user has been authenticated, put your code here, like set a cookie or something...
-		//or call FormsAuthentication.SetAuthCookie() or something
+		username = samlResponse.GetNameID();
+		email = samlResponse.GetEmail();
+		firstname = samlResponse.GetFirstName();
+		lastname = samlResponse.GetLastName();
 	}
+	catch(Exception ex)
+	{
+		//insert error handling code
+		//no, really, please do
+		return null;
+	}
+
+	//user has been authenticated, put your code here, like set a cookie or something...
+	//or call FormsAuthentication.SetAuthCookie() or something
 }
 ```
 
