@@ -86,7 +86,8 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 # Dependencies
 
-Project should reference NuGet Package `System.Security.Cryptography.Xml`
+Depending on your .NET version, your Project should reference NuGet Package `System.Security` 
+for .NET Framework and `System.Security.Cryptography.Xml` for .NET Core.
 
 # (NEW!) Nuget
 
