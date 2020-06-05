@@ -34,7 +34,7 @@ public ActionResult Login()
 		);
 
 	//redirect the user to the SAML provider
-	return Redirect(request.GetRedirectUrl(samlEndpoint);
+	return Redirect(request.GetRedirectUrl(samlEndpoint));
 }
 ```
 
