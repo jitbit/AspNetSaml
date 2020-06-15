@@ -223,6 +223,12 @@ namespace Saml
 
 			return node == null ? null : node.InnerText;
 		}
+		
+		public string GetCustomAttribute(string attr)
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='"+attr+"']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
 
 		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
 		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
