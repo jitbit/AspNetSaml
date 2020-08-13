@@ -29,7 +29,7 @@ public ActionResult Login()
 	var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
 
 	var request = new AuthRequest(
-		"http://www.myapp.com", //TODO: put your app's "unique ID" here
+		"http://www.myapp.com", //TODO: put your app's "entity ID" here
 		"http://www.myapp.com/SamlConsume" //TODO: put Assertion Consumer URL (where the provider should redirect users after authenticating)
 		);
 
