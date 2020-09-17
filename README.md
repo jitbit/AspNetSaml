@@ -62,7 +62,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 }
 ```
 
-# Reading more attributes form the provider
+# Reading more attributes from the provider
 
 SAML providers usually send more data with their response: username, first/last names etc. Here's how to get it:
 
