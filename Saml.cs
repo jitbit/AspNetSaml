@@ -78,7 +78,10 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public Response(string certificateStr, string responseString) : this(StringToByteArray(certificateStr))
+		public Response(string certificateStr, string responseString)
+			: this(StringToByteArray(certificateStr), responseString) { }
+
+		public Response(byte[] certificateBytes, string responseString) : this(certificateBytes)
 		{
 			LoadXmlFromBase64(responseString);
 		}
@@ -103,7 +106,7 @@ namespace Saml
 
 		public void LoadXmlFromBase64(string response)
 		{
-			System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
+			UTF8Encoding enc = new UTF8Encoding();
 			LoadXml(enc.GetString(Convert.FromBase64String(response)));
 		}
 
@@ -161,6 +164,12 @@ namespace Saml
 			return node.InnerText;
 		}
 
+		public string GetUpn()
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
 		public string GetEmail()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.email']/saml:AttributeValue", _xmlNameSpaceManager);
@@ -168,6 +177,10 @@ namespace Saml
 			//some providers (for example Azure AD) put email into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']/saml:AttributeValue", _xmlNameSpaceManager);
+
+			//some providers put email into an attribute named "mail"
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='mail']/saml:AttributeValue", _xmlNameSpaceManager);
 
 			return node == null ? null : node.InnerText;
 		}
@@ -183,6 +196,10 @@ namespace Saml
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.FirstName']/saml:AttributeValue", _xmlNameSpaceManager);
 
+			//some providers put first name into an attribute named "givenName"
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='givenName']/saml:AttributeValue", _xmlNameSpaceManager);
+
 			return node == null ? null : node.InnerText;
 		}
 
@@ -196,6 +213,10 @@ namespace Saml
 
 			if (node == null)
 				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.LastName']/saml:AttributeValue", _xmlNameSpaceManager);
+
+			//some providers put last name into an attribute named "sn"
+			if (node == null)
+				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='sn']/saml:AttributeValue", _xmlNameSpaceManager);
 
 			return node == null ? null : node.InnerText;
 		}
@@ -223,10 +244,10 @@ namespace Saml
 
 			return node == null ? null : node.InnerText;
 		}
-		
+
 		public string GetCustomAttribute(string attr)
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='"+attr+"']/saml:AttributeValue", _xmlNameSpaceManager);
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
 			return node == null ? null : node.InnerText;
 		}
 
@@ -260,7 +281,7 @@ namespace Saml
 		{
 			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
 
-			_id = "_" + System.Guid.NewGuid().ToString();
+			_id = "_" + Guid.NewGuid().ToString();
 			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
 			_issuer = issuer;
@@ -325,7 +346,7 @@ namespace Saml
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
 
-			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(this.GetRequest(AuthRequest.AuthRequestFormat.Base64));
+			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(GetRequest(AuthRequestFormat.Base64));
 
 			if (!string.IsNullOrEmpty(relayState)) 
 			{
