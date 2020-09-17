@@ -166,83 +166,47 @@ namespace Saml
 
 		public string GetUpn()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
 		}
 
 		public string GetEmail()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.email']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers (for example Azure AD) put email into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers put email into an attribute named "mail"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='mail']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("User.email")
+				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+				?? GetCustomAttribute("mail"); //some providers put last name into an attribute named "mail"
 		}
 
 		public string GetFirstName()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='first_name']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers (for example Azure AD) put first name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.FirstName']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers put first name into an attribute named "givenName"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='givenName']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("first_name")
+				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+				?? GetCustomAttribute("User.FirstName")
+				?? GetCustomAttribute("givenName"); //some providers put last name into an attribute named "givenName"
 		}
 
 		public string GetLastName()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='last_name']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.LastName']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			//some providers put last name into an attribute named "sn"
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='sn']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("last_name")
+				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+				?? GetCustomAttribute("User.LastName")
+				?? GetCustomAttribute("sn"); //some providers put last name into an attribute named "sn"
 		}
 
 		public string GetDepartment()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department");
 		}
 
 		public string GetPhone()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone']/saml:AttributeValue", _xmlNameSpaceManager);
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone")
+				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber");
 		}
 
 		public string GetCompany()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			if (node == null)
-				node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='User.CompanyName']/saml:AttributeValue", _xmlNameSpaceManager);
-
-			return node == null ? null : node.InnerText;
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname")
+				?? GetCustomAttribute("User.CompanyName");
 		}
 
 		public string GetCustomAttribute(string attr)
