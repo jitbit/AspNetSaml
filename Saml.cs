@@ -164,19 +164,19 @@ namespace Saml
 			return node.InnerText;
 		}
 
-		public string GetUpn()
+		public virtual string GetUpn()
 		{
 			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
 		}
 
-		public string GetEmail()
+		public virtual string GetEmail()
 		{
 			return GetCustomAttribute("User.email")
 				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
 				?? GetCustomAttribute("mail"); //some providers put last name into an attribute named "mail"
 		}
 
-		public string GetFirstName()
+		public virtual string GetFirstName()
 		{
 			return GetCustomAttribute("first_name")
 				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
@@ -184,7 +184,7 @@ namespace Saml
 				?? GetCustomAttribute("givenName"); //some providers put last name into an attribute named "givenName"
 		}
 
-		public string GetLastName()
+		public virtual string GetLastName()
 		{
 			return GetCustomAttribute("last_name")
 				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
@@ -192,18 +192,18 @@ namespace Saml
 				?? GetCustomAttribute("sn"); //some providers put last name into an attribute named "sn"
 		}
 
-		public string GetDepartment()
+		public virtual string GetDepartment()
 		{
 			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department");
 		}
 
-		public string GetPhone()
+		public virtual string GetPhone()
 		{
 			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone")
 				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber");
 		}
 
-		public string GetCompany()
+		public virtual string GetCompany()
 		{
 			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname")
 				?? GetCustomAttribute("User.CompanyName");
