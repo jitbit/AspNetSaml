@@ -60,9 +60,9 @@ namespace Saml
 		}
 	}
 
-	public partial class Response
+	public abstract class BaseResponse
 	{
-		private static byte[] StringToByteArray(string st)
+		protected static byte[] StringToByteArray(string st)
 		{
 			byte[] bytes = new byte[st.Length];
 			for (int i = 0; i < st.Length; i++)
@@ -78,17 +78,17 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public Response(string certificateStr, string responseString)
+		public BaseResponse(string certificateStr, string responseString)
 			: this(StringToByteArray(certificateStr), responseString) { }
 
-		public Response(byte[] certificateBytes, string responseString) : this(certificateBytes)
+		public BaseResponse(byte[] certificateBytes, string responseString) : this(certificateBytes)
 		{
 			LoadXmlFromBase64(responseString);
 		}
 
-		public Response(string certificateStr) : this(StringToByteArray(certificateStr)) { }
+		public BaseResponse(string certificateStr) : this(StringToByteArray(certificateStr)) { }
 
-		public Response(byte[] certificateBytes)
+		public BaseResponse(byte[] certificateBytes)
 		{
 			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
 			_certificate = new X509Certificate2(certificateBytes);
@@ -110,22 +110,11 @@ namespace Saml
 			LoadXml(enc.GetString(Convert.FromBase64String(response)));
 		}
 
-		public bool IsValid()
-		{
-			XmlNodeList nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
-
-			SignedXml signedXml = new SignedXml(_xmlDoc);
-
-			if (nodeList.Count == 0) return false;
-
-			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
-		}
 
 		//an XML signature can "cover" not the whole document, but only a part of it
 		//.NET's built in "CheckSignature" does not cover this case, it will validate to true.
 		//We should check the signature reference, so it "references" the id of the root document element! If not - it's a hack
-		private bool ValidateSignatureReference(SignedXml signedXml)
+		protected bool ValidateSignatureReference(SignedXml signedXml)
 		{
 			if (signedXml.SignedInfo.References.Count != 1) //no ref at all
 				return false;
@@ -145,6 +134,47 @@ namespace Saml
 			}
 
 			return true;
+		}
+
+		public string GetCustomAttribute(string attr)
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
+		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
+		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
+		protected XmlNamespaceManager GetNamespaceManager()
+		{
+			XmlNamespaceManager manager = new XmlNamespaceManager(_xmlDoc.NameTable);
+			manager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+			manager.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
+			manager.AddNamespace("samlp", "urn:oasis:names:tc:SAML:2.0:protocol");
+
+			return manager;
+		}
+	}
+
+	public class Response : BaseResponse
+	{
+		public Response(string certificateStr, string responseString) : base(certificateStr, responseString) { }
+
+		public Response(byte[] certificateBytes, string responseString) : base(certificateBytes, responseString) { }
+
+		public Response(string certificateStr) : base(certificateStr) { }
+
+		public Response(byte[] certificateBytes) : base(certificateBytes) { }
+
+		public bool IsValid()
+		{
+			XmlNodeList nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
+
+			SignedXml signedXml = new SignedXml(_xmlDoc);
+
+			if (nodeList.Count == 0) return false;
+
+			signedXml.LoadXml((XmlElement)nodeList[0]);
+			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
 		}
 
 		private bool IsExpired()
@@ -209,22 +239,92 @@ namespace Saml
 				?? GetCustomAttribute("User.CompanyName");
 		}
 
-		public string GetCustomAttribute(string attr)
+	}
+
+	public class SignoutResponse : BaseResponse
+	{
+		public SignoutResponse(string certificateStr, string responseString) : base(certificateStr, responseString) { }
+
+		public SignoutResponse(byte[] certificateBytes, string responseString) : base(certificateBytes, responseString) { }
+
+		public SignoutResponse(string certificateStr) : base(certificateStr) { }
+
+		public SignoutResponse(byte[] certificateBytes) : base(certificateBytes) { }
+
+		public string GetLogoutStatus()
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutResponse/samlp:Status/samlp:StatusCode");
+
+			return node == null ? null : node.Attributes["Value"].Value.Replace("urn:oasis:names:tc:SAML:2.0:status:", string.Empty);
+		}
+	}
+
+	public class SignoutRequest
+	{
+		private string _id;
+		private string _issue_instant;
+		private string _issuer;
+		private string _nameId;
+		private string _logoutCallbackUrl;
+
+		public SignoutRequest(string issuer, string nameId, string logoutCallbackUrl)
+		{
+			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
+
+			_id = "_" + Guid.NewGuid().ToString();
+			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
+
+			_issuer = issuer;
+			_nameId = nameId;
+			_logoutCallbackUrl = logoutCallbackUrl;
 		}
 
-		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
-		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
-		private XmlNamespaceManager GetNamespaceManager()
+		public string GetRequest()
 		{
-			XmlNamespaceManager manager = new XmlNamespaceManager(_xmlDoc.NameTable);
-			manager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-			manager.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
-			manager.AddNamespace("samlp", "urn:oasis:names:tc:SAML:2.0:protocol");
+			using(StringWriter sw = new StringWriter())
+			{
+				XmlWriterSettings xws = new XmlWriterSettings();
+				xws.OmitXmlDeclaration = true;
 
-			return manager;
+				using(XmlWriter xw = XmlWriter.Create(sw, xws))
+				{
+					xw.WriteStartElement("samlp", "LogoutRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
+					xw.WriteAttributeString("ID", _id);
+					xw.WriteAttributeString("Version", "2.0");
+					xw.WriteAttributeString("IssueInstant", _issue_instant);
+
+					xw.WriteStartElement("saml", "Issuer", "urn:oasis:names:tc:SAML:2.0:assertion");
+					xw.WriteString(_issuer);
+					xw.WriteEndElement();
+
+					xw.WriteStartElement("saml", "NameID", "urn:oasis:names:tc:SAML:2.0:assertion");
+					xw.WriteString(_nameId);
+					xw.WriteEndElement();
+
+					xw.WriteEndElement();
+				}
+
+				var memoryStream = new MemoryStream();
+				var writer = new StreamWriter(new DeflateStream(memoryStream, CompressionMode.Compress, true), new UTF8Encoding(false));
+				writer.Write(sw.ToString());
+				writer.Close();
+				string result = Convert.ToBase64String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Base64FormattingOptions.None);
+				return result;
+			}
+		}
+
+		public string GetRedirectUrl(string samlEndpoint, string relayState = null)
+		{
+			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
+
+			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(GetRequest());
+
+			if (!string.IsNullOrEmpty(relayState))
+			{
+				url += "&RelayState=" + HttpUtility.UrlEncode(relayState);
+			}
+
+			return url;
 		}
 	}
 
