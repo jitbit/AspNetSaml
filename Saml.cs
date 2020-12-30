@@ -26,7 +26,7 @@ namespace Saml
 		public RSAPKCS1SHA256SignatureDescription()
 		{
 			KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-			DigestAlgorithm = typeof(SHA256Managed).FullName;   // Note - SHA256CryptoServiceProvider is not registered with CryptoConfig
+			DigestAlgorithm = typeof(SHA256Managed).FullName;	// Note - SHA256CryptoServiceProvider is not registered with CryptoConfig
 			FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
 			DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
 		}
@@ -54,7 +54,7 @@ namespace Saml
 		private static bool _initialized = false;
 		public static void Init()
 		{
-			if(!_initialized)
+			if (!_initialized)
 				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
 			_initialized = true;
 		}
@@ -158,7 +158,12 @@ namespace Saml
 			return DateTime.UtcNow > expirationDate.ToUniversalTime();
 		}
 
-		public string GetNameID()
+		public virtual string GetRequestID()
+		{
+			return _xmlDoc.SelectSingleNode("/samlp:Response/@InResponseTo", _xmlNameSpaceManager)?.InnerText;
+		}
+
+		public virtual string GetNameID()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:NameID", _xmlNameSpaceManager);
 			return node.InnerText;
@@ -166,53 +171,59 @@ namespace Saml
 
 		public virtual string GetUpn()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
+			return GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
 		}
 
 		public virtual string GetEmail()
 		{
-			return GetCustomAttribute("User.email")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-				?? GetCustomAttribute("mail"); //some providers put last name into an attribute named "mail"
+			// Azure AD puts email into an attribute named
+			// "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+			return GetAttributeByName("User.email")
+				?? GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+				?? GetAttributeByName("mail");
 		}
 
 		public virtual string GetFirstName()
 		{
-			return GetCustomAttribute("first_name")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
-				?? GetCustomAttribute("User.FirstName")
-				?? GetCustomAttribute("givenName"); //some providers put last name into an attribute named "givenName"
+			// Some providers (for example Azure AD) put last name into an attribute named
+            // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+			return GetAttributeByName("first_name")
+				?? GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")
+				?? GetAttributeByName("User.FirstName")
+				?? GetAttributeByName("givenName");
 		}
 
 		public virtual string GetLastName()
 		{
-			return GetCustomAttribute("last_name")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
-				?? GetCustomAttribute("User.LastName")
-				?? GetCustomAttribute("sn"); //some providers put last name into an attribute named "sn"
+			// Azure AD puts last name into an attribute named
+			// "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+			return GetAttributeByName("last_name")
+				?? GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")
+				?? GetAttributeByName("User.LastName")
+				?? GetAttributeByName("sn");
 		}
 
 		public virtual string GetDepartment()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department");
+			return GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department");
 		}
 
 		public virtual string GetPhone()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber");
+			return GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone")
+				?? GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber");
 		}
 
 		public virtual string GetCompany()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname")
-				?? GetCustomAttribute("User.CompanyName");
+			return GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname")
+				?? GetAttributeByName("User.CompanyName");
 		}
 
-		public string GetCustomAttribute(string attr)
+		public string GetAttributeByName(string attrName)
 		{
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attrName + "']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node?.InnerText;
 		}
 
 		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
@@ -230,11 +241,13 @@ namespace Saml
 
 	public class AuthRequest
 	{
-		public string _id;
+		public string ID { get; }
+
 		private string _issue_instant;
 
 		private string _issuer;
 		private string _assertionConsumerServiceUrl;
+
 
 		public enum AuthRequestFormat
 		{
@@ -245,7 +258,7 @@ namespace Saml
 		{
 			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
 
-			_id = "_" + Guid.NewGuid().ToString();
+			ID = "_" + Guid.NewGuid().ToString();
 			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
 			_issuer = issuer;
@@ -262,7 +275,7 @@ namespace Saml
 				using (XmlWriter xw = XmlWriter.Create(sw, xws))
 				{
 					xw.WriteStartElement("samlp", "AuthnRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
-					xw.WriteAttributeString("ID", _id);
+					xw.WriteAttributeString("ID", ID);
 					xw.WriteAttributeString("Version", "2.0");
 					xw.WriteAttributeString("IssueInstant", _issue_instant);
 					xw.WriteAttributeString("ProtocolBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
@@ -312,7 +325,7 @@ namespace Saml
 
 			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(GetRequest(AuthRequestFormat.Base64));
 
-			if (!string.IsNullOrEmpty(relayState)) 
+			if (!string.IsNullOrEmpty(relayState))
 			{
 				url += "&RelayState=" + HttpUtility.UrlEncode(relayState);
 			}
