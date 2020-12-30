@@ -186,7 +186,7 @@ namespace Saml
 		public virtual string GetFirstName()
 		{
 			// Some providers (for example Azure AD) put last name into an attribute named
-            // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+			// "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
 			return GetAttributeByName("first_name")
 				?? GetAttributeByName("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")
 				?? GetAttributeByName("User.FirstName")
