@@ -13,53 +13,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
-using System.Security.Cryptography;
 
 namespace Saml
 {
-	/// <summary>
-	/// this class adds support of SHA256 signing to .NET 4.0 and earlier
-	/// (you can use it in .NET 4.5 too, if you don't want a "System.Deployment" dependency)
-	/// </summary>
-	public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
-	{
-		public RSAPKCS1SHA256SignatureDescription()
-		{
-			KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-			DigestAlgorithm = typeof(SHA256Managed).FullName;   // Note - SHA256CryptoServiceProvider is not registered with CryptoConfig
-			FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
-			DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
-		}
-
-		public override AsymmetricSignatureDeformatter CreateDeformatter(AsymmetricAlgorithm key)
-		{
-			if (key == null)
-				throw new ArgumentNullException("key");
-
-			RSAPKCS1SignatureDeformatter deformatter = new RSAPKCS1SignatureDeformatter(key);
-			deformatter.SetHashAlgorithm("SHA256");
-			return deformatter;
-		}
-
-		public override AsymmetricSignatureFormatter CreateFormatter(AsymmetricAlgorithm key)
-		{
-			if (key == null)
-				throw new ArgumentNullException("key");
-
-			RSAPKCS1SignatureFormatter formatter = new RSAPKCS1SignatureFormatter(key);
-			formatter.SetHashAlgorithm("SHA256");
-			return formatter;
-		}
-
-		private static bool _initialized = false;
-		public static void Init()
-		{
-			if(!_initialized)
-				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
-			_initialized = true;
-		}
-	}
-
 	public partial class Response
 	{
 		private static byte[] StringToByteArray(string st)
@@ -90,7 +46,6 @@ namespace Saml
 
 		public Response(byte[] certificateBytes)
 		{
-			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
 			_certificate = new X509Certificate2(certificateBytes);
 		}
 
@@ -251,8 +206,6 @@ namespace Saml
 
 		public AuthRequest(string issuer, string assertionConsumerServiceUrl)
 		{
-			RSAPKCS1SHA256SignatureDescription.Init(); //init the SHA256 crypto provider (for needed for .NET 4.0 and lower)
-
 			_id = "_" + Guid.NewGuid().ToString();
 			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
