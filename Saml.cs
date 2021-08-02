@@ -194,7 +194,8 @@ namespace Saml
 
 		public virtual string GetDepartment()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department");
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department")
+				?? GetCustomAttribute("department");
 		}
 
 		public virtual string GetPhone()
@@ -206,7 +207,14 @@ namespace Saml
 		public virtual string GetCompany()
 		{
 			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/companyname")
+				?? GetCustomAttribute("organization")
 				?? GetCustomAttribute("User.CompanyName");
+		}
+
+		public virtual string GetLocation()
+		{
+			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/location")
+				?? GetCustomAttribute("physicalDeliveryOfficeName");
 		}
 
 		public string GetCustomAttribute(string attr)
