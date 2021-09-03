@@ -6,7 +6,7 @@ It's a *SAML client* library, not a *SAML server*, allows adding SAML single-sig
 
 ## Installation
 
-Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it.
+Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it. It works with both ASP.NET Core and the "old" ASP.NET Framework
 
 ## Usage
 
