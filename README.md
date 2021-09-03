@@ -58,7 +58,10 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 	// 3. We're done!
 	if (samlResponse.IsValid())
+	{
+		//WOOHOO!!! user is logged in
 		username = samlResponse.GetNameID();
+	}
 }
 ```
 
@@ -89,7 +92,9 @@ if (samlResponse.IsValid())
 	}
 
 	//user has been authenticated, put your code here, like set a cookie or something...
-	//or call FormsAuthentication.SetAuthCookie() or something
+	//or call FormsAuthentication.SetAuthCookie()
+	//or call context.SignInAsync() in ASP.NET Core
+	//or do something else
 }
 ```
 
