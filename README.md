@@ -1,5 +1,7 @@
 # AspNetSaml
 
+This is an update done to test the github apis.
+
 Very simple SAML 2.0 "consumer" implementation in C#.
 
 It's a *SAML client* library, not a *SAML server*, allows adding SAML single-sign-on to your ASP.NET app, but *not* to provide auth services to other apps.
