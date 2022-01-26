@@ -6,7 +6,7 @@ It's a *SAML client* library, not a *SAML server*, allows adding SAML single-sig
 
 ## Installation
 
-Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it.
+Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it. It works with both ASP.NET Core and the "old" ASP.NET Framework
 
 ## Usage
 
@@ -58,7 +58,10 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 
 	// 3. We're done!
 	if (samlResponse.IsValid())
+	{
+		//WOOHOO!!! user is logged in
 		username = samlResponse.GetNameID();
+	}
 }
 ```
 
@@ -89,7 +92,9 @@ if (samlResponse.IsValid())
 	}
 
 	//user has been authenticated, put your code here, like set a cookie or something...
-	//or call FormsAuthentication.SetAuthCookie() or something
+	//or call FormsAuthentication.SetAuthCookie()
+	//or call context.SignInAsync() in ASP.NET Core
+	//or do something else
 }
 ```
 
