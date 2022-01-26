@@ -6,7 +6,6 @@
 */
 
 using System;
-using System.Web;
 using System.IO;
 using System.Xml;
 using System.Security.Cryptography.X509Certificates;
@@ -271,11 +270,11 @@ namespace Saml
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
 
-			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + HttpUtility.UrlEncode(GetRequest(AuthRequestFormat.Base64));
+			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + Uri.EscapeDataString(GetRequest(AuthRequestFormat.Base64));
 
 			if (!string.IsNullOrEmpty(relayState)) 
 			{
-				url += "&RelayState=" + HttpUtility.UrlEncode(relayState);
+				url += "&RelayState=" + Uri.EscapeDataString(relayState);
 			}
 
 			return url;
