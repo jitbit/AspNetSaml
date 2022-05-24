@@ -2,7 +2,6 @@
 	https://github.com/jitbit/AspNetSaml/
 	(c) Jitbit LP, 2016
 	Use this freely under the Apache license (see https://choosealicense.com/licenses/apache-2.0/)
-	version 1.2.3
 */
 
 using System;

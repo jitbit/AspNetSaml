@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>AspNetSaml</id>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <authors>jitbit</authors>
     <owners>jitbit</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,7 +11,7 @@
     <iconUrl>https://github.com/jitbit/AspNetSaml</iconUrl>
     <description>SAML component for ASP.NET</description>
     <releaseNotes>Fixes and improvements</releaseNotes>
-    <copyright>Copyright Jitbit 2017-2020</copyright>
+    <copyright>Copyright Jitbit 2017-2022</copyright>
     <tags>SAML ASP.NET</tags>
 	<contentFiles>
       <files include="**/Saml.cs" flatten="true" />
