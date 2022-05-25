@@ -17,9 +17,9 @@ SAML workflow has 2 steps:
 1. User is redirected to the SAML provider (where he authenticates)
 1. User is redirected back to your app, where you validate the payload
 
-Here's how you do it (this example is for ASP.NET MVC:
+Here's how you do it (this example is for ASP.NET MVC):
 
-### 1. Redirecting the user to the saml provider:
+## 1. Redirecting the user to the saml provider:
 
 ```c#
 //this example is an ASP.NET MVC action method
@@ -38,7 +38,7 @@ public ActionResult Login()
 }
 ```
 
-### 2. User has been redirected back
+## 2. User has been redirected back
 
 User is sent back to your app - you need to validate the SAML response ("assertion") that you recieved via POST.
 
@@ -54,7 +54,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 -----END CERTIFICATE-----";
 
 	// 2. Let's read the data - SAML providers usually POST it into the "SAMLResponse" var
-	Saml.Response samlResponse = new Response(samlCertificate, Request.Form["SAMLResponse"]);
+	var samlResponse = new Response(samlCertificate, Request.Form["SAMLResponse"]);
 
 	// 3. We're done!
 	if (samlResponse.IsValid())
