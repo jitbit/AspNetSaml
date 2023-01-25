@@ -1,3 +1,5 @@
+![](https://github.com/jitbit/AspNetSaml/actions/workflows/dotnet.yml/badge.svg)
+
 # AspNetSaml
 
 Very simple SAML 2.0 "consumer" implementation in C#.
