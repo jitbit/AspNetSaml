@@ -197,6 +197,11 @@ namespace Saml
 		private string _issuer;
 		private string _assertionConsumerServiceUrl;
 
+		/// <summary>
+		/// get or sets if ForceAuthn attribute is sent to IdP
+		/// </summary>
+		public bool ForceAuthn { get; set; }
+
 		public enum AuthRequestFormat
 		{
 			Base64 = 1
@@ -226,6 +231,8 @@ namespace Saml
 					xw.WriteAttributeString("IssueInstant", _issue_instant);
 					xw.WriteAttributeString("ProtocolBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
 					xw.WriteAttributeString("AssertionConsumerServiceURL", _assertionConsumerServiceUrl);
+					if (ForceAuthn)
+						xw.WriteAttributeString("ForceAuthn", "true");
 
 					xw.WriteStartElement("saml", "Issuer", "urn:oasis:names:tc:SAML:2.0:assertion");
 					xw.WriteString(_issuer);
