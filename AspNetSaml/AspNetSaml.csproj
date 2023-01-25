@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>AspNetSaml</PackageId>
+    <Title>AspNetSaml</Title>
+    <Version>2.0.0-beta</Version>
+    <Authors>Alex from Jitbit</Authors>
+    <Copyright>Copyright Jitbit 2017-2023</Copyright>
+    <PackageProjectUrl>https://github.com/jitbit/AspNetSaml</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/jitbit/AspNetSaml</RepositoryUrl>
+    <Description>SAML component fro ASP.NET</Description>
+    <PackageTags>saml;sso;asp.net</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -6,7 +6,9 @@ It's a *SAML client* library, not a *SAML server*, allows adding SAML single-sig
 
 ## Installation
 
-Consists of **one short C# file** you can throw into your project (or [install via nuget](#new-nuget)) and start using it. It works with both ASP.NET Core and the "old" ASP.NET Framework
+`Install-Package AspNetSaml`
+
+This is a .NET Standard 2.0 library that works with both ASP.NET Core and the "old" ASP.NET Framework. Older versions were released as a single c-sharp file you could throw into your project, but starting with v2.0 this is a "proper" class library nuget package.
 
 ## Usage
 
@@ -102,13 +104,5 @@ if (samlResponse.IsValid())
 
 Depending on your .NET version, your Project should reference `System.Security` 
 for .NET Framework and `System.Security.Cryptography.Xml` for .NET Core.
-
-# (NEW!) Nuget
-
-I've published this to Nuget.
-
-`Install-Package AspNetSaml`
-
-This will simply add the cs-file to the root of your project.
 
 A version of this library has been used for years in production in our [helpdesk app](https://jitbit.github.com/helpdesk/).
