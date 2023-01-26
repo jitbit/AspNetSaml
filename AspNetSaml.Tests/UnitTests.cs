@@ -66,6 +66,8 @@ MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2Fs
             Assert.IsTrue(samlresp.GetNameID() == "_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7");
 
             Assert.IsTrue(samlresp.GetEmail() == "test@example.com");
+
+            Assert.IsTrue(samlresp.GetCustomAttribute("uid") == "test");
         }
 
         [TestMethod]
