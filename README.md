@@ -105,8 +105,8 @@ if (samlResponse.IsValid())
 }
 ```
 
-## Notes about the source code
+# Notes about the source code
 
-All the functionality sits in one single short file [Saml.cs](https://github.com/jitbit/AspNetSaml/blob/master/AspNetSaml/Saml.cs) other stuff in this repo are unit tests, nuget-packaging etc. YOu can take that file and throw it in your project, it should work just fine.
+All the functionality sits in one single short file [Saml.cs](https://github.com/jitbit/AspNetSaml/blob/master/AspNetSaml/Saml.cs) other stuff in this repo are just unit tests, nuget-packaging etc. You can take that file and throw it in your project, it should work just fine.
 
 P.S. This library has been battle-tested for years in production in our [helpdesk app](https://www.jitbit.com/helpdesk/) please check it out if you're looking for a ticketing system for your team. Cheers.
