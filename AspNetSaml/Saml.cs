@@ -63,6 +63,10 @@ namespace Saml
 			LoadXml(enc.GetString(Convert.FromBase64String(response)));
 		}
 
+		/// <summary>
+		/// Check the validity of SAML response (validate signature etc)
+		/// </summary>
+		/// <returns></returns>
 		public bool IsValid()
 		{
 			XmlNodeList nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
@@ -111,6 +115,9 @@ namespace Saml
 			return DateTime.UtcNow > expirationDate.ToUniversalTime();
 		}
 
+		/// <summary>
+		/// returns the User's login
+		/// </summary>
 		public string GetNameID()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:NameID", _xmlNameSpaceManager);
@@ -216,6 +223,11 @@ namespace Saml
 			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
 		}
 
+		/// <summary>
+		/// returns SAML request as compressed and Base64 encoded XML. You don't need this method
+		/// </summary>
+		/// <param name="format"></param>
+		/// <returns></returns>
 		public string GetRequest(AuthRequestFormat format)
 		{
 			using (StringWriter sw = new StringWriter())
@@ -271,7 +283,12 @@ namespace Saml
 			}
 		}
 
-		//returns the URL you should redirect your users to (i.e. your SAML-provider login URL with the Base64-ed request in the querystring
+		/// <summary>
+		/// returns the URL you should redirect your users to (i.e. your SAML-provider login URL with the Base64-ed request in the querystring
+		/// </summary>
+		/// <param name="samlEndpoint">SAML provider login url</param>
+		/// <param name="relayState">Optional state to pass through</param>
+		/// <returns></returns>
 		public string GetRedirectUrl(string samlEndpoint, string relayState = null)
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
