@@ -47,6 +47,9 @@ namespace Saml
 			_certificate = new X509Certificate2(certificateBytes);
 		}
 
+		/// <summary>
+		/// Parse SAML response XML (in case was it not passed in constructor)
+		/// </summary>
 		public void LoadXml(string xml)
 		{
 			_xmlDoc = new XmlDocument();
@@ -64,7 +67,7 @@ namespace Saml
 		}
 
 		/// <summary>
-		/// Check the validity of SAML response (validate signature etc)
+		/// Checks the validity of SAML response (validate signature, check expiration date etc)
 		/// </summary>
 		/// <returns></returns>
 		public bool IsValid()
