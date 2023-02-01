@@ -14,7 +14,7 @@ using System.Text;
 
 namespace Saml
 {
-	public partial class Response
+	public class Response
 	{
 		private static byte[] StringToByteArray(string st)
 		{
