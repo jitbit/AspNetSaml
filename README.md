@@ -26,7 +26,7 @@ Here's how you do it (this example is for ASP.NET MVC):
 ## 1. Redirecting the user to the saml provider:
 
 ```c#
-//this example is an ASP.NET MVC action method
+//this example is an ASP.NET Core MVC action method
 public IActionResult Login()
 {
 	//TODO: specify the SAML provider url here, aka "Endpoint"
@@ -37,7 +37,7 @@ public IActionResult Login()
 		"http://www.myapp.com/SamlConsume" //TODO: put Assertion Consumer URL (where the provider should redirect users after authenticating)
 		);
 
-	//redirect the user to the SAML provider
+	//now send the user to the SAML provider
 	return Redirect(request.GetRedirectUrl(samlEndpoint));
 }
 ```
@@ -46,10 +46,10 @@ public IActionResult Login()
 
 User is sent back to your app - you need to validate the SAML response ("assertion") that you recieved via POST.
 
-Here's an example of how you do it in ASP.NET MVC
+Here's an example of how you do it in ASP.NET Core MVC
 
 ```c#
-//ASP.NET MVC action method... But you can easily modify the code for Web-forms etc.
+//ASP.NET Core MVC action method... But you can easily modify the code for old .NET Framework, Web-forms etc.
 public IActionResult SamlConsume()
 {
 	// 1. TODO: specify the certificate that your SAML provider gave you
@@ -64,18 +64,23 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 	if (samlResponse.IsValid()) //all good
 	{
 		//WOOHOO!!! the user is logged in
-		username = samlResponse.GetNameID();
+		var username = samlResponse.GetNameID(); //let's get the username
 		
 		//user has been authenticated
-		//put your code here, like set a cookie or something...
+		//now call context.SignInAsync() for ASP.NET Core
 		//or call FormsAuthentication.SetAuthCookie() for .NET Framework
-		//or call context.SignInAsync() for ASP.NET Core
-		//or do something else
+		//or do something else, like set a cookie or something...
+		
+		//FOR EXAMPLE this is how you sign-in a user in ASP.NET Core 3,5,6,7
+		return context.SignInAsync(new ClaimsPrincipal(
+			new ClaimsIdentity(
+				new[] { new Claim(ClaimTypes.Name, username) },
+				CookieAuthenticationDefaults.AuthenticationScheme)));
 	}
 }
 ```
 
-# Reading more attributes from the provider
+# Bonus: reading more attributes from the provider
 
 SAML providers usually send more data with their response: username, first/last names etc. Here's how to get it:
 
