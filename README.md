@@ -61,12 +61,12 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 	var samlResponse = new Response(samlCertificate, Request.Form["SAMLResponse"]);
 
 	// 3. DONE!
-	if (samlResponse.IsValid()) //all good
+	if (samlResponse.IsValid()) //all good?
 	{
 		//WOOHOO!!! the user is logged in
 		var username = samlResponse.GetNameID(); //let's get the username
 		
-		//user has been authenticated
+		//the user has been authenticated
 		//now call context.SignInAsync() for ASP.NET Core
 		//or call FormsAuthentication.SetAuthCookie() for .NET Framework
 		//or do something else, like set a cookie or something...
@@ -76,7 +76,11 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 			new ClaimsIdentity(
 				new[] { new Claim(ClaimTypes.Name, username) },
 				CookieAuthenticationDefaults.AuthenticationScheme)));
+		
+		return Redirect("~/");
 	}
+	
+	return Content("Unauthorized");
 }
 ```
 
