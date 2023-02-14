@@ -35,7 +35,7 @@ public IActionResult Login()
 	var request = new AuthRequest(
 		"http://www.myapp.com", //TODO: put your app's "entity ID" here
 		"http://www.myapp.com/SamlConsume" //TODO: put Assertion Consumer URL (where the provider should redirect users after authenticating)
-		);
+	);
 
 	//now send the user to the SAML provider
 	return Redirect(request.GetRedirectUrl(samlEndpoint));
@@ -72,7 +72,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 		//or do something else, like set a cookie or something...
 		
 		//FOR EXAMPLE this is how you sign-in a user in ASP.NET Core 3,5,6,7
-		return context.SignInAsync(new ClaimsPrincipal(
+		context.SignInAsync(new ClaimsPrincipal(
 			new ClaimsIdentity(
 				new[] { new Claim(ClaimTypes.Name, username) },
 				CookieAuthenticationDefaults.AuthenticationScheme)));
