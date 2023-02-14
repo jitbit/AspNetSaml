@@ -50,7 +50,7 @@ Here's an example of how you do it in ASP.NET Core MVC
 
 ```c#
 //ASP.NET Core MVC action method... But you can easily modify the code for old .NET Framework, Web-forms etc.
-public IActionResult SamlConsume()
+public async Task<IActionResult> SamlConsume()
 {
 	// 1. TODO: specify the certificate that your SAML provider gave you
 	string samlCertificate = @"-----BEGIN CERTIFICATE-----
@@ -72,7 +72,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 		//or do something else, like set a cookie or something...
 		
 		//FOR EXAMPLE this is how you sign-in a user in ASP.NET Core 3,5,6,7
-		context.SignInAsync(new ClaimsPrincipal(
+		await context.SignInAsync(new ClaimsPrincipal(
 			new ClaimsIdentity(
 				new[] { new Claim(ClaimTypes.Name, username) },
 				CookieAuthenticationDefaults.AuthenticationScheme)));
