@@ -16,16 +16,6 @@ namespace Saml
 {
 	public class Response
 	{
-		private static byte[] StringToByteArray(string st)
-		{
-			byte[] bytes = new byte[st.Length];
-			for (int i = 0; i < st.Length; i++)
-			{
-				bytes[i] = (byte)st[i];
-			}
-			return bytes;
-		}
-
 		protected XmlDocument _xmlDoc;
 		protected readonly X509Certificate2 _certificate;
 		protected XmlNamespaceManager _xmlNameSpaceManager; //we need this one to run our XPath queries on the SAML XML
@@ -33,14 +23,14 @@ namespace Saml
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
 		public Response(string certificateStr, string responseString)
-			: this(StringToByteArray(certificateStr), responseString) { }
+			: this(Encoding.ASCII.GetBytes(certificateStr), responseString) { }
 
 		public Response(byte[] certificateBytes, string responseString) : this(certificateBytes)
 		{
 			LoadXmlFromBase64(responseString);
 		}
 
-		public Response(string certificateStr) : this(StringToByteArray(certificateStr)) { }
+		public Response(string certificateStr) : this(Encoding.ASCII.GetBytes(certificateStr)) { }
 
 		public Response(byte[] certificateBytes)
 		{
