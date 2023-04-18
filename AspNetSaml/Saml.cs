@@ -210,7 +210,7 @@ namespace Saml
 		public AuthRequest(string issuer, string assertionConsumerServiceUrl)
 		{
 			_id = "_" + Guid.NewGuid().ToString();
-			_issue_instant = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
+			_issue_instant = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
 			_issuer = issuer;
 			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
