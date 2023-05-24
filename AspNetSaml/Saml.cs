@@ -5,7 +5,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
@@ -174,6 +176,18 @@ namespace Saml
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
 			return node == null ? null : node.InnerText;
+		}
+
+		public string GetCustomAttributeViaFriendlyName(string attr)
+		{
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@FriendlyName='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
+			return node == null ? null : node.InnerText;
+		}
+
+		public List<string> GetCustomAttributeAsList(string attr)
+		{
+			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
+			return nodes == null ? null : nodes.Cast<XmlNode>().Select(x => x.InnerText).ToList();
 		}
 
 		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
