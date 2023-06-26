@@ -71,6 +71,23 @@ MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2Fs
         }
 
         [TestMethod]
+        public void TestSamlResponseValidatorAdvanced()
+        {
+            var cert = @"-----BEGIN CERTIFICATE-----
+MIIClTCCAX0CBgGICgolYzANBgkqhkiG9w0BAQsFADAOMQwwCgYDVQQDDANQT0MwHhcNMjMwNTExMDg1ODM3WhcNMzMwNTExMDkwMDE3WjAOMQwwCgYDVQQDDANQT0MwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCdKUug5y3ifMXH2kPGPib3APKzA1n9GEsAV304irs9oKK91iCpmQL0SfmMRtyWILPUTSSfKb+Ius2U9AgcjIs517DsbZYTZAglpuZ1DUZTN4IM2PRBrt2bpKv8vQTplesKw6QnWFGrjlOPtw1UmsTnciqiy71GHssSNlLvMObpyW02tt0mGbWQRvCeIwt+aXTB2xrK7buBNJ8yUwdJ0VOpfsUR0yLmV2N/oN0F+f1I/kxn/COEgFZiqJWWEyRCMCXafetU+dq8YMtcO149CKxK66WgTyanAjBf2jv7v5Gk3/0vrLFEIPtHBonDFFQeGw/sTV6bJG+tIS1CX5R/guZRAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAEdXFmQ0BNE4IrE+aEueIl/eyyb90jdU1gmtlrqIvR+RsuQlJzasjE5qW1vcZTdV+omQpeePnIY94KwkhbWwaMsshq7Zi7bbyNWmhc0Mo3o6ONbr3Q6fvfNBePbObGfVCFRT3mgwiqrR59Wmku4PopRS/DXYvbQoim5rxiClAHyN0PkcX6u5J7mmzV1RiZ5OE4fJkIHXXmvUc6NeeFOx8EUnEDrVbfyBn9AK0IZAoj7/jKAJPv5DsBZH3iuFwjSOCAIkpr3W0YcITBeRAvdAri9eFpJ3GO1ZKjynpQaUNWeB3JBjJeNBfQszzmEHlv3Lrayiv2+/uTjFZ2DT7jfxaMw=
+-----END CERTIFICATE-----";
+
+            var samlresp = new Saml.Response(cert);
+            samlresp.LoadXml(@"<samlp:Response xmlns:samlp=""urn:oasis:names:tc:SAML:2.0:protocol"" xmlns:saml=""urn:oasis:names:tc:SAML:2.0:assertion"" Destination=""http://localhost:5167/Home/SamlConsume"" ID=""ID_c5a5b7f0-91f3-4d71-90d2-df63c1101bae"" InResponseTo=""_336f6f63-3890-4efb-b4d5-332d3d7486ff"" IssueInstant=""2023-05-24T16:18:35.039Z"" Version=""2.0""><saml:Issuer>http://keycloak:1080/realms/POC</saml:Issuer><dsig:Signature xmlns:dsig=""http://www.w3.org/2000/09/xmldsig#""><dsig:SignedInfo><dsig:CanonicalizationMethod Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#"" /><dsig:SignatureMethod Algorithm=""http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"" /><dsig:Reference URI=""#ID_c5a5b7f0-91f3-4d71-90d2-df63c1101bae""><dsig:Transforms><dsig:Transform Algorithm=""http://www.w3.org/2000/09/xmldsig#enveloped-signature"" /><dsig:Transform Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#"" /></dsig:Transforms><dsig:DigestMethod Algorithm=""http://www.w3.org/2001/04/xmlenc#sha256"" /><dsig:DigestValue>UrJzr9Ja0f4Ks+K6TPEfQ53bw1veGXHtMZpLmRrr/ww=</dsig:DigestValue></dsig:Reference></dsig:SignedInfo><dsig:SignatureValue>EAM65nY/e0YkK/H0nw+hdt6PhUIEs5jtftvP/NuHCSFjsVNj8L4jIT7Gvso8r9gSnwz0FJetVK16LjHdN+0f8Od2BDk9njD7KBQx9v9ich12zl1Ny+T6dLtc4XypkvoPwscna7KIQOEn8xeKBq4IbC+gPYfJEQ3GjnQ5JuXhJW5GValLELKWbH21oECRL6VAs7BAohQy2/BbTTGM1tbeuqWIZrqdP/KKOpiHxVIPwzwC8EuQmrhYiaJ9tOzNtBJGD5IW7L6Z6GIhVX2yQPuEW/gfb/bYCi6+0KD664YBICfyJLSarbcK6qgafP9YUdJ48qopiHXbuZ1m8ceCfC0Kow==</dsig:SignatureValue><dsig:KeyInfo><dsig:X509Data><dsig:X509Certificate>MIIClTCCAX0CBgGICgolYzANBgkqhkiG9w0BAQsFADAOMQwwCgYDVQQDDANQT0MwHhcNMjMwNTExMDg1ODM3WhcNMzMwNTExMDkwMDE3WjAOMQwwCgYDVQQDDANQT0MwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCdKUug5y3ifMXH2kPGPib3APKzA1n9GEsAV304irs9oKK91iCpmQL0SfmMRtyWILPUTSSfKb+Ius2U9AgcjIs517DsbZYTZAglpuZ1DUZTN4IM2PRBrt2bpKv8vQTplesKw6QnWFGrjlOPtw1UmsTnciqiy71GHssSNlLvMObpyW02tt0mGbWQRvCeIwt+aXTB2xrK7buBNJ8yUwdJ0VOpfsUR0yLmV2N/oN0F+f1I/kxn/COEgFZiqJWWEyRCMCXafetU+dq8YMtcO149CKxK66WgTyanAjBf2jv7v5Gk3/0vrLFEIPtHBonDFFQeGw/sTV6bJG+tIS1CX5R/guZRAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAEdXFmQ0BNE4IrE+aEueIl/eyyb90jdU1gmtlrqIvR+RsuQlJzasjE5qW1vcZTdV+omQpeePnIY94KwkhbWwaMsshq7Zi7bbyNWmhc0Mo3o6ONbr3Q6fvfNBePbObGfVCFRT3mgwiqrR59Wmku4PopRS/DXYvbQoim5rxiClAHyN0PkcX6u5J7mmzV1RiZ5OE4fJkIHXXmvUc6NeeFOx8EUnEDrVbfyBn9AK0IZAoj7/jKAJPv5DsBZH3iuFwjSOCAIkpr3W0YcITBeRAvdAri9eFpJ3GO1ZKjynpQaUNWeB3JBjJeNBfQszzmEHlv3Lrayiv2+/uTjFZ2DT7jfxaMw=</dsig:X509Certificate></dsig:X509Data></dsig:KeyInfo></dsig:Signature><samlp:Status><samlp:StatusCode Value=""urn:oasis:names:tc:SAML:2.0:status:Success"" /></samlp:Status><saml:Assertion xmlns=""urn:oasis:names:tc:SAML:2.0:assertion"" ID=""ID_4f3af568-ac8a-479f-ba5e-c41a665556cf"" IssueInstant=""2023-05-24T16:18:35.039Z"" Version=""2.0""><saml:Issuer>http://keycloak:1080/realms/POC</saml:Issuer><saml:Subject><saml:NameID Format=""urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"">guest</saml:NameID><saml:SubjectConfirmation Method=""urn:oasis:names:tc:SAML:2.0:cm:bearer""><saml:SubjectConfirmationData InResponseTo=""_336f6f63-3890-4efb-b4d5-332d3d7486ff"" NotOnOrAfter=""2024-01-18T16:18:33.039Z"" Recipient=""http://localhost:5167/Home/SamlConsume"" /></saml:SubjectConfirmation></saml:Subject><saml:Conditions NotBefore=""2023-05-24T16:18:33.039Z"" NotOnOrAfter=""2024-01-18T16:18:33.039Z""><saml:AudienceRestriction><saml:Audience>WebApp3</saml:Audience></saml:AudienceRestriction></saml:Conditions><saml:AuthnStatement AuthnInstant=""2023-05-24T16:18:35.039Z"" SessionIndex=""f954efd3-4332-4ff8-8cb7-8600174f22b0::f8e67f48-0a80-457e-a669-1e37bd0338d1"" SessionNotOnOrAfter=""2023-05-25T02:18:35.039Z""><saml:AuthnContext><saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef></saml:AuthnContext></saml:AuthnStatement><saml:AttributeStatement><saml:Attribute FriendlyName=""email"" Name=""urn:oid:1.2.840.113549.1.9.1"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">guest@guest.com</saml:AttributeValue></saml:Attribute><saml:Attribute FriendlyName=""surname"" Name=""urn:oid:2.5.4.4"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">Guest</saml:AttributeValue></saml:Attribute><saml:Attribute FriendlyName=""givenName"" Name=""urn:oid:2.5.4.42"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">Guest</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">uma_authorization</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">offline_access</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">default-roles-poc</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">view-profile</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">manage-account</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">manage-account-links</saml:AttributeValue></saml:Attribute><saml:Attribute Name=""Role"" NameFormat=""urn:oasis:names:tc:SAML:2.0:attrname-format:basic""><saml:AttributeValue xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xsi:type=""xs:string"">SimpleUser</saml:AttributeValue></saml:Attribute></saml:AttributeStatement></saml:Assertion></samlp:Response>");
+            
+            Assert.IsTrue(samlresp.IsValid());
+
+            Assert.IsTrue(samlresp.GetCustomAttributeViaFriendlyName("givenName") == "Guest");
+
+            Assert.IsTrue(Enumerable.SequenceEqual(samlresp.GetCustomAttributeAsList("Role"), new List<string> { "uma_authorization", "offline_access", "default-roles-poc", "view-profile", "manage-account", "manage-account-links", "SimpleUser" }));
+        }
+
+        [TestMethod]
         public void TestSamlRequest()
         {
 			var samlEndpoint = "http://saml-provider-that-we-use.com/login/";
@@ -94,5 +111,30 @@ MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2Fs
             Assert.IsTrue(str.EndsWith(@"ProtocolBinding=""urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"" AssertionConsumerServiceURL=""http://www.myapp.com/SamlConsume"" xmlns:samlp=""urn:oasis:names:tc:SAML:2.0:protocol""><saml:Issuer xmlns:saml=""urn:oasis:names:tc:SAML:2.0:assertion"">http://www.myapp.com</saml:Issuer><samlp:NameIDPolicy Format=""urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"" AllowCreate=""true"" /></samlp:AuthnRequest>"));
 
 		}
-    }
+
+        [TestMethod]
+        public void TestStringToByteArray()
+        {
+            //test that the old StringToByteArray was generating same result as the new Encoding.ASCII.GetBytes
+
+            var cert = @"-----BEGIN CERTIFICATE-----
+MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2FsaWZvcm5pYTEVMBMGA1UECgwMT25lbG9naW4gSW5jMRcwFQYDVQQDDA5zcC5leGFtcGxlLmNvbTAeFw0xNDA3MTcxNDEyNTZaFw0xNTA3MTcxNDEyNTZaMFIxCzAJBgNVBAYTAnVzMRMwEQYDVQQIDApDYWxpZm9ybmlhMRUwEwYDVQQKDAxPbmVsb2dpbiBJbmMxFzAVBgNVBAMMDnNwLmV4YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDZx+ON4IUoIWxgukTb1tOiX3bMYzYQiwWPUNMp+Fq82xoNogso2bykZG0yiJm5o8zv/sd6pGouayMgkx/2FSOdc36T0jGbCHuRSbtia0PEzNIRtmViMrt3AeoWBidRXmZsxCNLwgIV6dn2WpuE5Az0bHgpZnQxTKFek0BMKU/d8wIDAQABo1AwTjAdBgNVHQ4EFgQUGHxYqZYyX7cTxKVODVgZwSTdCnwwHwYDVR0jBBgwFoAUGHxYqZYyX7cTxKVODVgZwSTdCnwwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQ0FAAOBgQByFOl+hMFICbd3DJfnp2Rgd/dqttsZG/tyhILWvErbio/DEe98mXpowhTkC04ENprOyXi7ZbUqiicF89uAGyt1oqgTUCD1VsLahqIcmrzgumNyTwLGWo17WDAa1/usDhetWAMhgzF/Cnf5ek0nK00m0YZGyc4LzgD0CROMASTWNg==
+-----END CERTIFICATE-----";
+
+
+			var x = StringToByteArray(cert);
+            var y = Encoding.ASCII.GetBytes(cert);
+            Assert.IsTrue(x.SequenceEqual(y));
+		}
+
+		private static byte[] StringToByteArray(string st)
+		{
+			byte[] bytes = new byte[st.Length];
+			for (int i = 0; i < st.Length; i++)
+			{
+				bytes[i] = (byte)st[i];
+			}
+			return bytes;
+		}
+	}
 }
