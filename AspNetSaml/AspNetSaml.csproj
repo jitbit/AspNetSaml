@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/jitbit/AspNetSaml</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/jitbit/AspNetSaml</RepositoryUrl>
-    <Description>SAML component fro ASP.NET</Description>
+    <Description>SAML component for ASP.NET</Description>
     <PackageTags>saml;sso;asp.net</PackageTags>
   </PropertyGroup>
 
