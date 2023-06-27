@@ -86,13 +86,6 @@ namespace Saml
 
 			return manager;
 		}
-	}
-
-	public class Response : BaseResponse
-	{
-		public Response(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
-
-		public Response(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
 		/// <summary>
 		/// Checks the validity of SAML response (validate signature, check expiration date etc)
@@ -120,6 +113,13 @@ namespace Saml
 			}
 			return DateTime.UtcNow > expirationDate.ToUniversalTime();
 		}
+	}
+
+	public class Response : BaseResponse
+	{
+		public Response(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
+
+		public Response(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
 		/// <summary>
 		/// returns the User's login
