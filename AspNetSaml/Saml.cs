@@ -24,19 +24,13 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public BaseResponse(string certificateStr, string responseString)
-			: this(Encoding.ASCII.GetBytes(certificateStr), responseString) { }
+		public BaseResponse(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(certificateStr), responseString) { }
 
-		public BaseResponse(byte[] certificateBytes, string responseString) : this(certificateBytes)
-		{
-			LoadXmlFromBase64(responseString);
-		}
-
-		public BaseResponse(string certificateStr) : this(Encoding.ASCII.GetBytes(certificateStr)) { }
-
-		public BaseResponse(byte[] certificateBytes)
+		public BaseResponse(byte[] certificateBytes, string responseString = null)
 		{
 			_certificate = new X509Certificate2(certificateBytes);
+			if (responseString != null)
+				LoadXmlFromBase64(responseString);
 		}
 
 		/// <summary>
@@ -44,9 +38,7 @@ namespace Saml
 		/// </summary>
 		public void LoadXml(string xml)
 		{
-			_xmlDoc = new XmlDocument();
-			_xmlDoc.PreserveWhitespace = true;
-			_xmlDoc.XmlResolver = null;
+			_xmlDoc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };
 			_xmlDoc.LoadXml(xml);
 
 			_xmlNameSpaceManager = GetNamespaceManager(); //lets construct a "manager" for XPath queries
@@ -98,13 +90,9 @@ namespace Saml
 
 	public class Response : BaseResponse
 	{
-		public Response(string certificateStr, string responseString) : base(certificateStr, responseString) { }
+		public Response(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
-		public Response(byte[] certificateBytes, string responseString) : base(certificateBytes, responseString) { }
-
-		public Response(string certificateStr) : base(certificateStr) { }
-
-		public Response(byte[] certificateBytes) : base(certificateBytes) { }
+		public Response(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
 		/// <summary>
 		/// Checks the validity of SAML response (validate signature, check expiration date etc)
@@ -198,36 +186,32 @@ namespace Saml
 		public string GetCustomAttribute(string attr)
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			return node?.InnerText;
 		}
 
 		public string GetCustomAttributeViaFriendlyName(string attr)
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@FriendlyName='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
-			return node == null ? null : node.InnerText;
+			return node?.InnerText;
 		}
 
 		public List<string> GetCustomAttributeAsList(string attr)
 		{
 			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
-			return nodes == null ? null : nodes.Cast<XmlNode>().Select(x => x.InnerText).ToList();
+			return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
 		}
 	}
 
 	public class SignoutResponse : BaseResponse
 	{
-		public SignoutResponse(string certificateStr, string responseString) : base(certificateStr, responseString) { }
+		public SignoutResponse(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
-		public SignoutResponse(byte[] certificateBytes, string responseString) : base(certificateBytes, responseString) { }
-
-		public SignoutResponse(string certificateStr) : base(certificateStr) { }
-
-		public SignoutResponse(byte[] certificateBytes) : base(certificateBytes) { }
+		public SignoutResponse(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
 		public string GetLogoutStatus()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutResponse/samlp:Status/samlp:StatusCode", _xmlNameSpaceManager);
-			return node == null ? null : node.Attributes["Value"].Value.Replace("urn:oasis:names:tc:SAML:2.0:status:", string.Empty);
+			return node?.Attributes["Value"].Value.Replace("urn:oasis:names:tc:SAML:2.0:status:", string.Empty);
 		}
 	}
 
@@ -299,6 +283,7 @@ namespace Saml
 		/// </summary>
 		public bool ForceAuthn { get; set; }
 
+		[Obsolete("Obsolete, will be removed")]
 		public enum AuthRequestFormat
 		{
 			Base64 = 1
@@ -316,8 +301,7 @@ namespace Saml
 		{
 			using (StringWriter sw = new StringWriter())
 			{
-				XmlWriterSettings xws = new XmlWriterSettings();
-				xws.OmitXmlDeclaration = true;
+				XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
 
 				using (XmlWriter xw = XmlWriter.Create(sw, xws))
 				{
@@ -367,8 +351,7 @@ namespace Saml
 		{
 			using (StringWriter sw = new StringWriter())
 			{
-				XmlWriterSettings xws = new XmlWriterSettings();
-				xws.OmitXmlDeclaration = true;
+				XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
 
 				using (XmlWriter xw = XmlWriter.Create(sw, xws))
 				{
