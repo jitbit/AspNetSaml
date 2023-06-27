@@ -97,7 +97,7 @@ MIIClTCCAX0CBgGICgolYzANBgkqhkiG9w0BAQsFADAOMQwwCgYDVQQDDANQT0MwHhcNMjMwNTExMDg1
 				"http://www.myapp.com/SamlConsume"
 				);
 
-            var r = request.GetRequest(AuthRequest.AuthRequestFormat.Base64);
+            var r = request.GetRequest();
 
             //decode the compressed base64
             var ms = new MemoryStream(Convert.FromBase64String(r));

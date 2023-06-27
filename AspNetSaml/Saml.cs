@@ -248,6 +248,22 @@ namespace Saml
 
 		public abstract string GetRequest();
 
+		protected static string ConvertToBase64Deflated(string input)
+		{
+			//byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(input);
+			//return System.Convert.ToBase64String(toEncodeAsBytes);
+
+			//https://stackoverflow.com/questions/25120025/acs75005-the-request-is-not-a-valid-saml2-protocol-message-is-showing-always%3C/a%3E
+			var memoryStream = new MemoryStream();
+			using (var writer = new StreamWriter(new DeflateStream(memoryStream, CompressionMode.Compress, true), new UTF8Encoding(false)))
+			{
+				writer.Write(input);
+				writer.Close();
+			}
+			string result = Convert.ToBase64String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Base64FormattingOptions.None);
+			return result;
+		}
+
 		/// <summary>
 		/// returns the URL you should redirect your users to (i.e. your SAML-provider login URL with the Base64-ed request in the querystring
 		/// </summary>
@@ -333,17 +349,7 @@ namespace Saml
 					xw.WriteEndElement();
 				}
 
-
-				//byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(sw.ToString());
-				//return System.Convert.ToBase64String(toEncodeAsBytes);
-
-				//https://stackoverflow.com/questions/25120025/acs75005-the-request-is-not-a-valid-saml2-protocol-message-is-showing-always%3C/a%3E
-				var memoryStream = new MemoryStream();
-				var writer = new StreamWriter(new DeflateStream(memoryStream, CompressionMode.Compress, true), new UTF8Encoding(false));
-				writer.Write(sw.ToString());
-				writer.Close();
-				string result = Convert.ToBase64String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Base64FormattingOptions.None);
-				return result;
+				return ConvertToBase64Deflated(sw.ToString());
 			}
 		}
 	}
@@ -382,12 +388,7 @@ namespace Saml
 					xw.WriteEndElement();
 				}
 
-				var memoryStream = new MemoryStream();
-				var writer = new StreamWriter(new DeflateStream(memoryStream, CompressionMode.Compress, true), new UTF8Encoding(false));
-				writer.Write(sw.ToString());
-				writer.Close();
-				string result = Convert.ToBase64String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Base64FormattingOptions.None);
-				return result;
+				return ConvertToBase64Deflated(sw.ToString());
 			}
 		}
 	}
