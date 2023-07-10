@@ -273,6 +273,11 @@ namespace Saml
 	{
 		private string _assertionConsumerServiceUrl;
 
+		/// <summary>
+		/// Initializes new instance of AuthRequest
+		/// </summary>
+		/// <param name="issuer">put your EntityID here</param>
+		/// <param name="assertionConsumerServiceUrl">put your return URL here</param>
 		public AuthRequest(string issuer, string assertionConsumerServiceUrl) : base(issuer)
 		{
 			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
@@ -295,7 +300,6 @@ namespace Saml
 		/// <summary>
 		/// returns SAML request as compressed and Base64 encoded XML. You don't need this method
 		/// </summary>
-		/// <param name="format"></param>
 		/// <returns></returns>
 		public override string GetRequest()
 		{
