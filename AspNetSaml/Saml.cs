@@ -375,4 +375,31 @@ namespace Saml
 			}
 		}
 	}
+
+	public static class MetaData
+	{
+		/// <summary>
+		/// generates XML string describing service provider metadata based on provided EntiytID and Consumer URL
+		/// </summary>
+		/// <param name="entityId"></param>
+		/// <param name="assertionConsumerServiceUrl"></param>
+		/// <returns></returns>
+		public static string Generate(string entityId, string assertionConsumerServiceUrl)
+		{
+			return $@"<?xml version=""1.0""?>
+<md:EntityDescriptor xmlns:md=""urn:oasis:names:tc:SAML:2.0:metadata""
+	validUntil=""{DateTime.UtcNow.ToString("s")}Z""
+	entityID=""{entityId}"">
+	
+	<md:SPSSODescriptor AuthnRequestsSigned=""false"" WantAssertionsSigned=""true"" protocolSupportEnumeration=""urn:oasis:names:tc:SAML:2.0:protocol"">
+	
+		<md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+
+		<md:AssertionConsumerService Binding=""urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST""
+			Location=""{assertionConsumerServiceUrl}""
+			index=""1"" />
+	</md:SPSSODescriptor>
+</md:EntityDescriptor>";
+		}
+	}
 }
