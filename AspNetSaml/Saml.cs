@@ -13,6 +13,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace Saml
 {
@@ -26,9 +29,11 @@ namespace Saml
 
 		public BaseResponse(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(certificateStr), responseString) { }
 
-		public BaseResponse(byte[] certificateBytes, string responseString = null)
+		public BaseResponse(byte[] certificateBytes, string responseString = null) : this(new X509Certificate2(certificateBytes), responseString) { }
+
+		public BaseResponse(X509Certificate2 certificate, string responseString = null)
 		{
-			_certificate = new X509Certificate2(certificateBytes);
+			_certificate = certificate;
 			if (responseString != null)
 				LoadXmlFromBase64(responseString);
 		}
@@ -36,12 +41,14 @@ namespace Saml
 		/// <summary>
 		/// Parse SAML response XML (in case was it not passed in constructor)
 		/// </summary>
-		public void LoadXml(string xml)
+		/// <param name="xml"></param>
+		/// <param name="namespaceManager">Creates a default namespace manager if one is not provided.</param>
+		public void LoadXml(string xml, XmlNamespaceManager namespaceManager = null)
 		{
 			_xmlDoc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };
 			_xmlDoc.LoadXml(xml);
 
-			_xmlNameSpaceManager = GetNamespaceManager(); //lets construct a "manager" for XPath queries
+			_xmlNameSpaceManager = namespaceManager ?? GetNamespaceManager(); //lets construct a "manager" for XPath queries
 		}
 
 		public void LoadXmlFromBase64(string response)
@@ -79,8 +86,16 @@ namespace Saml
 		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
 		private XmlNamespaceManager GetNamespaceManager()
 		{
-			XmlNamespaceManager manager = new XmlNamespaceManager(_xmlDoc.NameTable);
+			var manager = new XmlNamespaceManager(_xmlDoc.NameTable);
+
+			manager.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+			manager.AddNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
 			manager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+			manager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+			manager.AddNamespace("dsig", SignedXml.XmlDsigNamespaceUrl);
+			manager.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
+			manager.AddNamespace("xenc", EncryptedXml.XmlEncNamespaceUrl);
+			manager.AddNamespace("xmlenc", EncryptedXml.XmlEncNamespaceUrl);
 			manager.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
 			manager.AddNamespace("samlp", "urn:oasis:names:tc:SAML:2.0:protocol");
 
@@ -100,7 +115,9 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
+			return ValidateSignatureReference(signedXml) &&
+				signedXml.CheckSignature(_certificate, true) &&
+				!IsExpired();
 		}
 
 		private bool IsExpired()
@@ -121,6 +138,8 @@ namespace Saml
 
 		public Response(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
+		public Response(X509Certificate2 certificate, string responseString = null) : base(certificate, responseString) { }
+
 		/// <summary>
 		/// returns the User's login
 		/// </summary>
@@ -132,20 +151,21 @@ namespace Saml
 
 		public virtual string GetUpn()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
+			return GetCustomAttribute(ClaimTypes.Upn);
 		}
 
 		public virtual string GetEmail()
 		{
 			return GetCustomAttribute("User.email")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-				?? GetCustomAttribute("mail"); //some providers put last name into an attribute named "mail"
+				?? GetCustomAttribute(ClaimTypes.Email) //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+				?? GetCustomAttribute("mail") //some providers put last name into an attribute named "mail"
+				?? GetCustomAttribute("email"); //some providers put last name into an attribute named "email"
 		}
 
 		public virtual string GetFirstName()
 		{
 			return GetCustomAttribute("first_name")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+				?? GetCustomAttribute(ClaimTypes.GivenName) //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
 				?? GetCustomAttribute("User.FirstName")
 				?? GetCustomAttribute("givenName"); //some providers put last name into an attribute named "givenName"
 		}
@@ -153,7 +173,7 @@ namespace Saml
 		public virtual string GetLastName()
 		{
 			return GetCustomAttribute("last_name")
-				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname") //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+				?? GetCustomAttribute(ClaimTypes.Surname) //some providers (for example Azure AD) put last name into an attribute named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
 				?? GetCustomAttribute("User.LastName")
 				?? GetCustomAttribute("sn"); //some providers put last name into an attribute named "sn"
 		}
@@ -166,7 +186,9 @@ namespace Saml
 
 		public virtual string GetPhone()
 		{
-			return GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/homephone")
+			return GetCustomAttribute(ClaimTypes.HomePhone)
+				?? GetCustomAttribute(ClaimTypes.MobilePhone)
+				?? GetCustomAttribute(ClaimTypes.OtherPhone)
 				?? GetCustomAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephonenumber");
 		}
 
@@ -199,6 +221,67 @@ namespace Saml
 		{
 			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
 			return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
+		}
+
+		/// <summary>
+		/// Decrypts and returns any encrypted attributes using the SAML Service Provider's certificate private key.
+		/// </summary>
+		/// <param name="certificate"></param>
+		/// <returns>A list of SAML attribute Name/Value tuples.</returns>
+		/// <remarks>
+		/// Adapted from: https://github.com/ruialexrib/Programatica.Auth.SAML.ServiceProviderUtils/blob/master/src/Utils/AssertionParserUtils.cs.
+		/// </remarks>
+		public IEnumerable<(string Name, string Value)> GetEncryptedAttributes()
+		{
+			if (_certificate?.HasPrivateKey != true)
+			{
+				yield break;
+			}
+
+			var dataElements = _xmlDoc.SelectNodes("/samlp:Response/saml:EncryptedAssertion/xenc:EncryptedData", _xmlNameSpaceManager);
+
+			if (dataElements == null || dataElements.Count == 0)
+			{
+				yield break;
+			}
+
+			var parserContext = new XmlParserContext(null, _xmlNameSpaceManager, null, XmlSpace.None);
+
+			foreach (XmlNode element in dataElements)
+			{
+				var encryptionAlgorithm = element.SelectSingleNode("//xenc:EncryptionMethod", _xmlNameSpaceManager).Attributes["Algorithm"]?.Value;
+				var encryptionKeyAlgorithm = element.SelectSingleNode("//ds:KeyInfo/xenc:EncryptedKey/xenc:EncryptionMethod", _xmlNameSpaceManager)?.Attributes["Algorithm"]?.Value;
+				var encryptionKeyCipherValue = element.SelectSingleNode("//ds:KeyInfo/xenc:EncryptedKey/xenc:CipherData/xenc:CipherValue", _xmlNameSpaceManager)?.InnerText;
+
+				using var key = Rijndael.Create(encryptionAlgorithm);
+				key.Key = EncryptedXml.DecryptKey(
+												Convert.FromBase64String(encryptionKeyCipherValue),
+												_certificate.GetRSAPrivateKey(),
+												useOAEP: encryptionKeyAlgorithm == EncryptedXml.XmlEncRSAOAEPUrl
+											);
+
+				var encryptedXml = new EncryptedXml();
+				var encryptedData = new EncryptedData();
+				encryptedData.LoadXml((XmlElement)element);
+
+				using var reader = new XmlTextReader(
+					Encoding.UTF8.GetString(
+						encryptedXml.DecryptData(encryptedData, key)
+					),
+					XmlNodeType.Element,
+					parserContext);
+
+				var attributeElement = XElement.Load(reader);
+
+				// Attribute claim type.
+				var attributeType = attributeElement.Attribute("Name")?.Value;
+
+				// Attribute values.
+				foreach (var value in attributeElement.Descendants().Where(e => e?.Name?.LocalName == "AttributeValue"))
+				{
+					yield return (Name: attributeType, Value: value.Value);
+				}
+			}
 		}
 	}
 
@@ -260,7 +343,7 @@ namespace Saml
 
 			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + Uri.EscapeDataString(GetRequest());
 
-			if (!string.IsNullOrEmpty(relayState)) 
+			if (!string.IsNullOrEmpty(relayState))
 			{
 				url += "&RelayState=" + Uri.EscapeDataString(relayState);
 			}
