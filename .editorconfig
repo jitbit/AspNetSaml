@@ -1,7 +1,12 @@
 root = true
 
 [*]
+end_of_line = lf
 insert_final_newline = true
+indent_style = tab
+indent_size = 4
+tab_width = 4
+charset = Windows-1252 # Western European Windows
 
 [*.cs]
 indent_style = tab
@@ -79,7 +84,7 @@ dotnet_naming_style.pascal_case.capitalization = pascal_case
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4
 indent_size = 4
-end_of_line = crlf
+end_of_line = lf
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
