@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>AspNetSaml</PackageId>
     <Title>AspNetSaml</Title>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <Authors>Alex from Jitbit</Authors>
     <Copyright>Copyright Jitbit 2017-2023</Copyright>
     <PackageProjectUrl>https://github.com/jitbit/AspNetSaml</PackageProjectUrl>
