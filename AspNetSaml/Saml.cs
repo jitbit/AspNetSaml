@@ -13,6 +13,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
+using System.Runtime;
 
 namespace Saml
 {
@@ -24,7 +25,7 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public BaseResponse(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(certificateStr), responseString) { }
+		public BaseResponse(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(EnsureCertFormat(certificateStr)), responseString) { }
 
 		public BaseResponse(byte[] certificateBytes, string responseString = null)
 		{
@@ -42,6 +43,23 @@ namespace Saml
 			_xmlDoc.LoadXml(xml);
 
 			_xmlNameSpaceManager = GetNamespaceManager(); //lets construct a "manager" for XPath queries
+		}
+
+		//linux fix (not working when there's no "-----BEGIN CERTIFICATE-----xxxx-----END CERTIFICATE-----"
+		//also remove double line breaks
+		private static string EnsureCertFormat(string cert)
+		{
+			var samlCertificate = cert.Replace("\r", "").Replace("\n\n", "\n");
+			if (!samlCertificate.StartsWith("-----BEGIN CERTIFICATE-----"))
+			{
+				samlCertificate = "-----BEGIN CERTIFICATE-----\n" + samlCertificate.Trim();
+			}
+			if (!samlCertificate.EndsWith("-----END CERTIFICATE-----"))
+			{
+				samlCertificate = samlCertificate.Trim() + "\n-----END CERTIFICATE-----";
+			}
+
+			return samlCertificate;
 		}
 
 		public void LoadXmlFromBase64(string response)
