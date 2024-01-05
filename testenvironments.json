@@ -1,0 +1,11 @@
+//this file enables debugging unit-tests on WSL2 ubuntu when working on Windows
+{
+    "version": "1",
+    "environments": [
+        {
+            "name": "WSL-Ubuntu",
+            "type": "wsl",
+            "wslDistribution": "Ubuntu"
+        }
+    ]
+}
