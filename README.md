@@ -103,7 +103,7 @@ if (samlResponse.IsValid())
 		var lastname = samlResponse.GetLastName();
 		
 		//or read some custom-named data that you know the IdP sends
-		var officeLocation = samlReponse.GetCustomAttribute("OfficeAddress");
+		var officeLocation = samlResponse.GetCustomAttribute("OfficeAddress");
 	}
 	catch (Exception ex)
 	{
