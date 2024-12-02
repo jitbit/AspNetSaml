@@ -129,8 +129,10 @@ namespace Saml
 			{
 				DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
 			}
-			return DateTime.UtcNow > expirationDate.ToUniversalTime();
+			return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
 		}
+
+		public DateTime? CurrentTime { get; set; } = null; //mostly for unit-testing. STUPID I KNOW, will fix later
 	}
 
 	public class Response : BaseResponse
