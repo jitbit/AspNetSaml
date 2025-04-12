@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetSaml", "AspNetSaml\As
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSaml.Tests", "AspNetSaml.Tests\AspNetSaml.Tests.csproj", "{6633016C-09D8-4B86-876A-6A6E995D5734}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSaml.WebExample", "AspNetSaml.WebExample\AspNetSaml.WebExample.csproj", "{96C75360-DCD9-4EF3-80A4-BE91032B32DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6633016C-09D8-4B86-876A-6A6E995D5734}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6633016C-09D8-4B86-876A-6A6E995D5734}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6633016C-09D8-4B86-876A-6A6E995D5734}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96C75360-DCD9-4EF3-80A4-BE91032B32DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96C75360-DCD9-4EF3-80A4-BE91032B32DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96C75360-DCD9-4EF3-80A4-BE91032B32DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96C75360-DCD9-4EF3-80A4-BE91032B32DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
