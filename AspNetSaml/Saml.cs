@@ -1,6 +1,6 @@
 /*	Jitbit's simple SAML 2.0 component for ASP.NET
 	https://github.com/jitbit/AspNetSaml/
-	(c) Jitbit LP, 2016-2023
+	(c) Jitbit LP, 2016-2025
 	Use this freely under the Apache license (see https://choosealicense.com/licenses/apache-2.0/)
 */
 
@@ -17,7 +17,7 @@ using System.Runtime;
 
 namespace Saml
 {
-	public abstract class BaseResponse
+	public abstract class BaseSamlMessage
 	{
 		protected XmlDocument _xmlDoc;
 		protected readonly X509Certificate2 _certificate;
@@ -25,9 +25,9 @@ namespace Saml
 
 		public string Xml { get { return _xmlDoc.OuterXml; } }
 
-		public BaseResponse(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(EnsureCertFormat(certificateStr)), responseString) { }
+		public BaseSamlMessage(string certificateStr, string responseString = null) : this(Encoding.ASCII.GetBytes(EnsureCertFormat(certificateStr)), responseString) { }
 
-		public BaseResponse(byte[] certificateBytes, string responseString = null)
+		public BaseSamlMessage(byte[] certificateBytes, string responseString = null)
 		{
 			_certificate = new X509Certificate2(certificateBytes);
 			if (responseString != null)
@@ -121,7 +121,7 @@ namespace Saml
 			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
 		}
 
-		private bool IsExpired()
+		protected virtual bool IsExpired()
 		{
 			DateTime expirationDate = DateTime.MaxValue;
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
@@ -135,7 +135,7 @@ namespace Saml
 		public DateTime? CurrentTime { get; set; } = null; //mostly for unit-testing. STUPID I KNOW, will fix later
 	}
 
-	public class Response : BaseResponse
+	public class Response : BaseSamlMessage
 	{
 		public Response(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
@@ -222,7 +222,10 @@ namespace Saml
 		}
 	}
 
-	public class SignoutResponse : BaseResponse
+	/// <summary>
+	/// Represents IdP-generated Logout Response in response to a SP-initiated Logout Request.
+	/// </summary>
+	public class SignoutResponse : BaseSamlMessage
 	{
 		public SignoutResponse(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
@@ -232,6 +235,49 @@ namespace Saml
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutResponse/samlp:Status/samlp:StatusCode", _xmlNameSpaceManager);
 			return node?.Attributes["Value"].Value.Replace("urn:oasis:names:tc:SAML:2.0:status:", string.Empty);
+		}
+	}
+
+	/// <summary>
+	/// Represents an IdP-initiated Logout Request received by the SP.
+	/// </summary>
+	public class IdpLogoutRequest : BaseSamlMessage
+	{
+		public IdpLogoutRequest(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
+
+		public IdpLogoutRequest(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
+
+		/// <summary>
+		/// Gets the NameID from the IdP-initiated LogoutRequest.
+		/// </summary>
+		public string GetNameID()
+		{
+			// LogoutRequest typically uses /samlp:LogoutRequest/saml:NameID
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutRequest/saml:NameID", _xmlNameSpaceManager);
+			return node?.InnerText;
+		}
+
+		/// <summary>
+		/// Gets the SessionIndex from the IdP-initiated LogoutRequest.
+		/// </summary>
+		/// <returns>The SessionIndex string, or null if not found.</returns>
+		public string GetSessionIndex()
+		{
+			// SessionIndex is optional in the SAML spec for LogoutRequest
+			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutRequest/samlp:SessionIndex", _xmlNameSpaceManager);
+			return node?.InnerText;
+		}
+
+		/// <summary>
+		/// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
+		/// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
+		/// effectively bypassing the expiration check which is not relevant for LogoutRequests.
+		/// </summary>
+		protected override bool IsExpired()
+		{
+			// LogoutRequests don't have the standard expiration elements.
+			// Return false to ensure the base IsValid() check doesn't fail due to expiration.
+			return false;
 		}
 	}
 
@@ -362,6 +408,9 @@ namespace Saml
 		}
 	}
 
+	/// <summary>
+	/// Represents an SP-initiated Logout Request to be sent to the IdP.
+	/// </summary>
 	public class SignoutRequest : BaseRequest
 	{
 		private string _nameId;
@@ -405,14 +454,26 @@ namespace Saml
 		/// <summary>
 		/// generates XML string describing service provider metadata based on provided EntiytID and Consumer URL
 		/// </summary>
-		/// <param name="entityId"></param>
-		/// <param name="assertionConsumerServiceUrl"></param>
-		/// <returns></returns>
-		public static string Generate(string entityId, string assertionConsumerServiceUrl)
+		/// <param name="entityId">Your SP EntityID</param>
+		/// <param name="assertionConsumerServiceUrl">Your Assertion Consumer Service URL (where IdP sends responses)</param>
+		/// <param name="singleLogoutServiceUrl">Optional: Your Single Logout Service URL (where IdP sends LogoutRequests)</param>
+		/// <returns>XML metadata string</returns>
+		public static string Generate(string entityId, string assertionConsumerServiceUrl, string singleLogoutServiceUrl = null)
 		{
+			string sloServiceElement = "";
+			if (!string.IsNullOrEmpty(singleLogoutServiceUrl))
+			{
+				// We advertise HTTP-POST binding as IdpLogoutRequest handles POST
+				sloServiceElement = $@"
+			<md:SingleLogoutService Binding=""urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"" Location=""{singleLogoutServiceUrl}"" />";
+			}
+
+			// Construct the final metadata XML
+			// NOTE: Using string interpolation with $@ can be tricky with complex XML and quotes.
+			// Consider using XmlWriter or Linq to XML for more robust XML generation if needed.
 			return $@"<?xml version=""1.0""?>
 <md:EntityDescriptor xmlns:md=""urn:oasis:names:tc:SAML:2.0:metadata""
-	validUntil=""{DateTime.UtcNow.ToString("s")}Z""
+	validUntil=""{DateTime.UtcNow.AddYears(1).ToString("s")}Z"" 
 	entityID=""{entityId}"">
 	
 	<md:SPSSODescriptor AuthnRequestsSigned=""false"" WantAssertionsSigned=""true"" protocolSupportEnumeration=""urn:oasis:names:tc:SAML:2.0:protocol"">
@@ -421,7 +482,7 @@ namespace Saml
 
 		<md:AssertionConsumerService Binding=""urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST""
 			Location=""{assertionConsumerServiceUrl}""
-			index=""1"" />
+			index=""1"" />{sloServiceElement}
 	</md:SPSSODescriptor>
 </md:EntityDescriptor>";
 		}
