@@ -26,8 +26,8 @@ app.MapGet("/", () =>
 
 	//now send the user to the SAML provider
 	var url = request.GetRedirectUrl(SAML_ENDPOINT);
-    
-    return Results.Content("Click <a href=\"" + url + "\">here</a> to log in", "text/html");
+	
+	return Results.Content("Click <a href=\"" + url + "\">here</a> to log in", "text/html");
 });
 
 
