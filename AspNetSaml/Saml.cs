@@ -14,6 +14,10 @@ using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
 using System.Runtime;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
+using System.Xml;
+
 
 namespace Saml
 {
@@ -93,9 +97,42 @@ namespace Saml
 			return true;
 		}
 
-		//returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
-		//see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
-		private XmlNamespaceManager GetNamespaceManager()
+        protected string SignAuthnRequest(string samlRequestXml, X509Certificate2 certificate)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.PreserveWhitespace = true;
+            xmlDoc.LoadXml(samlRequestXml);
+
+            SignedXml signedXml = new SignedXml(xmlDoc);
+            signedXml.SigningKey = certificate.PrivateKey;
+
+            Reference reference = new Reference();
+            reference.Uri = "#" + xmlDoc.DocumentElement.GetAttribute("ID");
+
+            XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
+            reference.AddTransform(env);
+
+            signedXml.AddReference(reference);
+
+            KeyInfo keyInfo = new KeyInfo();
+            keyInfo.AddClause(new KeyInfoX509Data(certificate));
+            signedXml.KeyInfo = keyInfo;
+
+            signedXml.ComputeSignature();
+
+            XmlElement xmlDigitalSignature = signedXml.GetXml();
+            xmlDoc.DocumentElement.InsertBefore(xmlDigitalSignature, xmlDoc.DocumentElement.FirstChild);
+
+            return xmlDoc.OuterXml;
+        }
+
+
+
+
+
+        //returns namespace manager, we need one b/c MS says so... Otherwise XPath doesnt work in an XML doc with namespaces
+        //see https://stackoverflow.com/questions/7178111/why-is-xmlnamespacemanager-necessary
+        private XmlNamespaceManager GetNamespaceManager()
 		{
 			XmlNamespaceManager manager = new XmlNamespaceManager(_xmlDoc.NameTable);
 			manager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
@@ -118,8 +155,10 @@ namespace Saml
 			if (nodeList.Count == 0) return false;
 
 			signedXml.LoadXml((XmlElement)nodeList[0]);
-			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
-		}
+			
+            return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
+
+        }
 
 		protected virtual bool IsExpired()
 		{
@@ -288,7 +327,9 @@ namespace Saml
 
 		protected string _issuer;
 
-		public BaseRequest(string issuer)
+        private X509Certificate2? _signingCertificate;
+
+        public BaseRequest(string issuer)
 		{
 			_id = "_" + Guid.NewGuid().ToString();
 			_issue_instant = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
@@ -296,9 +337,21 @@ namespace Saml
 			_issuer = issuer;
 		}
 
-		public abstract string GetRequest();
+        public BaseRequest(string issuer, X509Certificate2 certificate)
+        {
+            _id = "_" + Guid.NewGuid().ToString();
+            _issue_instant = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
-		protected static string ConvertToBase64Deflated(string input)
+            _issuer = issuer;
+
+			_signingCertificate = certificate;
+        }
+
+        public abstract string GetRequest();
+
+        public abstract string GetSignedRequest(X509Certificate2 certificate);
+
+        protected static string ConvertToBase64Deflated(string input)
 		{
 			//byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(input);
 			//return System.Convert.ToBase64String(toEncodeAsBytes);
@@ -323,8 +376,16 @@ namespace Saml
 		public string GetRedirectUrl(string samlEndpoint, string relayState = null)
 		{
 			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
+			string samlRequest = GetRequest();
+			if (_signingCertificate != null)
+			{
+				samlRequest = GetSignedRequest(_signingCertificate);
+            }
+			else
+                samlRequest = GetRequest();
 
-			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + Uri.EscapeDataString(GetRequest());
+
+            var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + Uri.EscapeDataString(samlRequest);
 
 			if (!string.IsNullOrEmpty(relayState)) 
 			{
@@ -333,26 +394,70 @@ namespace Saml
 
 			return url;
 		}
-	}
 
-	public class AuthRequest : BaseRequest
+
+        public static string SignAuthnRequest(string samlRequestXml, X509Certificate2 certificate)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.PreserveWhitespace = true;
+            xmlDoc.LoadXml(samlRequestXml);
+
+            SignedXml signedXml = new SignedXml(xmlDoc);
+            signedXml.SigningKey = certificate.PrivateKey;
+
+            Reference reference = new Reference();
+            reference.Uri = "#" + xmlDoc.DocumentElement.GetAttribute("ID");
+
+            XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
+            reference.AddTransform(env);
+
+            signedXml.AddReference(reference);
+
+            KeyInfo keyInfo = new KeyInfo();
+            keyInfo.AddClause(new KeyInfoX509Data(certificate));
+            signedXml.KeyInfo = keyInfo;
+
+            signedXml.ComputeSignature();
+
+            XmlElement xmlDigitalSignature = signedXml.GetXml();
+            xmlDoc.DocumentElement.InsertBefore(xmlDigitalSignature, xmlDoc.DocumentElement.FirstChild);
+
+            return xmlDoc.OuterXml;
+        }
+
+    }
+
+    public class AuthRequest : BaseRequest
 	{
 		private string _assertionConsumerServiceUrl;
+		
 
+        
 		/// <summary>
-		/// Initializes new instance of AuthRequest
-		/// </summary>
-		/// <param name="issuer">put your EntityID here</param>
-		/// <param name="assertionConsumerServiceUrl">put your return URL here</param>
-		public AuthRequest(string issuer, string assertionConsumerServiceUrl) : base(issuer)
+        /// Initializes new instance of AuthRequest
+        /// </summary>
+        /// <param name="issuer">put your EntityID here</param>
+        /// <param name="assertionConsumerServiceUrl">put your return URL here</param>
+        public AuthRequest(string issuer, string assertionConsumerServiceUrl) : base(issuer)
 		{
 			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
 		}
 
-		/// <summary>
-		/// get or sets if ForceAuthn attribute is sent to IdP
-		/// </summary>
-		public bool ForceAuthn { get; set; }
+        /// <summary>
+        /// Initializes new instance of SIGNED AuthRequest
+        /// </summary>
+        /// <param name="issuer">put your EntityID here</param>
+        /// <param name="assertionConsumerServiceUrl">put your return URL here</param>
+		/// <param name="certificate">X509Certificate2 to sign the request</param>
+        public AuthRequest(string issuer, string assertionConsumerServiceUrl, X509Certificate2 certificate) : base(issuer, certificate)
+        {
+			_assertionConsumerServiceUrl = assertionConsumerServiceUrl;
+        }
+
+        /// <summary>
+        /// get or sets if ForceAuthn attribute is sent to IdP
+        /// </summary>
+        public bool ForceAuthn { get; set; }
 
 		[Obsolete("Obsolete, will be removed")]
 		public enum AuthRequestFormat
@@ -393,12 +498,12 @@ namespace Saml
 					xw.WriteAttributeString("AllowCreate", "true");
 					xw.WriteEndElement();
 
-					/*xw.WriteStartElement("samlp", "RequestedAuthnContext", "urn:oasis:names:tc:SAML:2.0:protocol");
+					xw.WriteStartElement("samlp", "RequestedAuthnContext", "urn:oasis:names:tc:SAML:2.0:protocol");
 					xw.WriteAttributeString("Comparison", "exact");
 					xw.WriteStartElement("saml", "AuthnContextClassRef", "urn:oasis:names:tc:SAML:2.0:assertion");
-					xw.WriteString("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
+					xw.WriteString("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
 					xw.WriteEndElement();
-					xw.WriteEndElement();*/
+					xw.WriteEndElement();
 
 					xw.WriteEndElement();
 				}
@@ -406,7 +511,59 @@ namespace Saml
 				return ConvertToBase64Deflated(sw.ToString());
 			}
 		}
-	}
+
+
+        /// <summary>
+        /// returns SAML request as compressed and Base64 encoded XML. You don't need this method
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSignedRequest(X509Certificate2 certificate)
+        {
+            using (StringWriter sw = new StringWriter())
+            {
+                XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
+
+                using (XmlWriter xw = XmlWriter.Create(sw, xws))
+                {
+                    xw.WriteStartElement("samlp", "AuthnRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
+                    xw.WriteAttributeString("ID", _id);
+                    xw.WriteAttributeString("Version", "2.0");
+                    xw.WriteAttributeString("IssueInstant", _issue_instant);
+                    xw.WriteAttributeString("ProtocolBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
+                    xw.WriteAttributeString("AssertionConsumerServiceURL", _assertionConsumerServiceUrl);
+                    if (ForceAuthn)
+                        xw.WriteAttributeString("ForceAuthn", "true");
+
+                    xw.WriteStartElement("saml", "Issuer", "urn:oasis:names:tc:SAML:2.0:assertion");
+                    xw.WriteString(_issuer);
+                    xw.WriteEndElement();
+
+                    xw.WriteStartElement("samlp", "NameIDPolicy", "urn:oasis:names:tc:SAML:2.0:protocol");
+                    xw.WriteAttributeString("Format", "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified");
+                    xw.WriteAttributeString("AllowCreate", "true");
+                    xw.WriteEndElement();
+
+                    /*xw.WriteStartElement("samlp", "RequestedAuthnContext", "urn:oasis:names:tc:SAML:2.0:protocol");
+					xw.WriteAttributeString("Comparison", "exact");
+					xw.WriteStartElement("saml", "AuthnContextClassRef", "urn:oasis:names:tc:SAML:2.0:assertion");
+					xw.WriteString("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
+					xw.WriteEndElement();
+					xw.WriteEndElement();*/
+
+                    xw.WriteEndElement();
+                }
+
+                // Sign the request
+				string signedXml = SignAuthnRequest(sw.ToString(), certificate);
+
+
+                return ConvertToBase64Deflated(signedXml);
+            }
+        }
+
+
+
+    }
 
 	/// <summary>
 	/// Represents an SP-initiated Logout Request to be sent to the IdP.
@@ -415,12 +572,16 @@ namespace Saml
 	{
 		private string _nameId;
 
-		public SignoutRequest(string issuer, string nameId) : base(issuer)
+		public SignoutRequest(string issuer, string nameId, X509Certificate2 certificate) : base(issuer, certificate)
 		{
 			_nameId = nameId;
 		}
+        public SignoutRequest(string issuer, string nameId) : base(issuer)
+        {
+            _nameId = nameId;
+        }
 
-		public override string GetRequest()
+        public override string GetRequest()
 		{
 			using (StringWriter sw = new StringWriter())
 			{
@@ -447,7 +608,41 @@ namespace Saml
 				return ConvertToBase64Deflated(sw.ToString());
 			}
 		}
-	}
+
+        public override string GetSignedRequest(X509Certificate2 certificate)
+        {
+            using (StringWriter sw = new StringWriter())
+            {
+                XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
+
+                using (XmlWriter xw = XmlWriter.Create(sw, xws))
+                {
+                    xw.WriteStartElement("samlp", "LogoutRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
+                    xw.WriteAttributeString("ID", _id);
+                    xw.WriteAttributeString("Version", "2.0");
+                    xw.WriteAttributeString("IssueInstant", _issue_instant);
+
+                    xw.WriteStartElement("saml", "Issuer", "urn:oasis:names:tc:SAML:2.0:assertion");
+                    xw.WriteString(_issuer);
+                    xw.WriteEndElement();
+
+                    xw.WriteStartElement("saml", "NameID", "urn:oasis:names:tc:SAML:2.0:assertion");
+                    xw.WriteString(_nameId);
+                    xw.WriteEndElement();
+
+                    xw.WriteEndElement();
+                }
+
+
+                // Sign the request
+                string signedXml = SignAuthnRequest(sw.ToString(), certificate);
+
+                return ConvertToBase64Deflated(signedXml);
+
+            }
+        }
+
+    }
 
 	public static class MetaData
 	{
