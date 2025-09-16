@@ -49,7 +49,7 @@ User is sent back to your app - you need to validate the SAML response ("asserti
 Here's an example of how you do it in ASP.NET Core MVC
 
 ```c#
-//ASP.NET Core MVC action method... But you can easily modify the code for old .NET Framework, Web-forms etc.
+//ASP.NET Core MVC action method... But you can easily modify the code for old .NET Framework, minimal API etc.
 public async Task<IActionResult> SamlConsume()
 {
 	// 1. TODO: specify the certificate that your SAML provider gave you
@@ -66,18 +66,19 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 		//WOOHOO!!! the user is logged in
 		var username = samlResponse.GetNameID(); //let's get the username
 		
-		//the user has been authenticated
-		//now call context.SignInAsync() for ASP.NET Core
+		//the user has been authenticated, now what?
+		//we can call context.SignInAsync() for ASP.NET Core
 		//or call FormsAuthentication.SetAuthCookie() for .NET Framework
 		//or do something else, like set a cookie or something...
 		
-		//FOR EXAMPLE this is how you sign-in a user in ASP.NET Core 3,5,6,7
+		//FOR EXAMPLE this is how you sign-in a user in ASP.NET Core 3,5,6,7,8
 		await context.SignInAsync(new ClaimsPrincipal(
 			new ClaimsIdentity(
 				new[] { new Claim(ClaimTypes.Name, username) },
 				CookieAuthenticationDefaults.AuthenticationScheme)));
+		//Yeah, it's a mouthful, sorry, not my fault
 		
-		return Redirect("~/");
+		return Redirect("~/"); //redirect authenticated user back to homapage for example
 	}
 	
 	return Content("Unauthorized");
