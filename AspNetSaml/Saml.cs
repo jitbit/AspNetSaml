@@ -14,6 +14,7 @@ using System.Security.Cryptography.Xml;
 using System.IO.Compression;
 using System.Text;
 using System.Runtime;
+using System.Text.Encodings.Web;
 
 namespace Saml
 {
@@ -283,14 +284,17 @@ namespace Saml
 
 	public abstract class BaseRequest
 	{
-		public string _id;
-		protected string _issue_instant;
+		protected readonly string _id;
+		protected readonly string _issue_instant;
+		protected readonly string _issuer;
+		
+		protected static readonly XmlWriterSettings _xmlSettings = new XmlWriterSettings {
+			OmitXmlDeclaration = true,
+			Encoding = new UTF8Encoding(false)
+		};
 
-		protected string _issuer;
-
-		public BaseRequest(string issuer)
-		{
-			_id = "_" + Guid.NewGuid().ToString();
+		protected BaseRequest(string issuer) {
+			_id = $"_{Guid.NewGuid()}";
 			_issue_instant = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture);
 
 			_issuer = issuer;
@@ -298,20 +302,17 @@ namespace Saml
 
 		public abstract string GetRequest();
 
-		protected static string ConvertToBase64Deflated(string input)
-		{
-			//byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(input);
-			//return System.Convert.ToBase64String(toEncodeAsBytes);
+		protected static string ConvertToBase64Deflated(MemoryStream streamInput) {
+			streamInput.Seek(0, SeekOrigin.Begin);
 
 			//https://stackoverflow.com/questions/25120025/acs75005-the-request-is-not-a-valid-saml2-protocol-message-is-showing-always%3C/a%3E
-			var memoryStream = new MemoryStream();
-			using (var writer = new StreamWriter(new DeflateStream(memoryStream, CompressionMode.Compress, true), new UTF8Encoding(false)))
-			{
-				writer.Write(input);
-				writer.Close();
+			using (var compressed = new MemoryStream()) {
+				using (var deflate = new DeflateStream(compressed, CompressionMode.Compress, leaveOpen: true)) {
+					streamInput.CopyTo(deflate);
+				}
+				
+				return Convert.ToBase64String(compressed.GetBuffer(), 0, (int)compressed.Length);
 			}
-			string result = Convert.ToBase64String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Base64FormattingOptions.None);
-			return result;
 		}
 
 		/// <summary>
@@ -322,13 +323,13 @@ namespace Saml
 		/// <returns></returns>
 		public string GetRedirectUrl(string samlEndpoint, string relayState = null)
 		{
-			var queryStringSeparator = samlEndpoint.Contains("?") ? "&" : "?";
+			var queryStringSeparator = samlEndpoint.Contains('?') ? '&' : '?';
 
-			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + Uri.EscapeDataString(GetRequest());
+			var url = samlEndpoint + queryStringSeparator + "SAMLRequest=" + UrlEncoder.Default.Encode(GetRequest());
 
 			if (!string.IsNullOrEmpty(relayState)) 
 			{
-				url += "&RelayState=" + Uri.EscapeDataString(relayState);
+				url += "&RelayState=" + UrlEncoder.Default.Encode(relayState);
 			}
 
 			return url;
@@ -337,7 +338,7 @@ namespace Saml
 
 	public class AuthRequest : BaseRequest
 	{
-		private string _assertionConsumerServiceUrl;
+		private readonly string _assertionConsumerServiceUrl;
 
 		/// <summary>
 		/// Initializes new instance of AuthRequest
@@ -369,11 +370,9 @@ namespace Saml
 		/// <returns></returns>
 		public override string GetRequest()
 		{
-			using (StringWriter sw = new StringWriter())
+			using (var ms = new MemoryStream())
 			{
-				XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
-
-				using (XmlWriter xw = XmlWriter.Create(sw, xws))
+				using (var xw = XmlWriter.Create(ms, _xmlSettings))
 				{
 					xw.WriteStartElement("samlp", "AuthnRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
 					xw.WriteAttributeString("ID", _id);
@@ -403,7 +402,7 @@ namespace Saml
 					xw.WriteEndElement();
 				}
 
-				return ConvertToBase64Deflated(sw.ToString());
+				return ConvertToBase64Deflated(ms);
 			}
 		}
 	}
@@ -413,20 +412,18 @@ namespace Saml
 	/// </summary>
 	public class SignoutRequest : BaseRequest
 	{
-		private string _nameId;
+		private readonly string _nameId;
 
 		public SignoutRequest(string issuer, string nameId) : base(issuer)
 		{
 			_nameId = nameId;
 		}
-
+		
 		public override string GetRequest()
 		{
-			using (StringWriter sw = new StringWriter())
+			using (var ms = new MemoryStream())
 			{
-				XmlWriterSettings xws = new XmlWriterSettings { OmitXmlDeclaration = true };
-
-				using (XmlWriter xw = XmlWriter.Create(sw, xws))
+				using (var xw = XmlWriter.Create(ms, _xmlSettings))
 				{
 					xw.WriteStartElement("samlp", "LogoutRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
 					xw.WriteAttributeString("ID", _id);
@@ -444,7 +441,7 @@ namespace Saml
 					xw.WriteEndElement();
 				}
 
-				return ConvertToBase64Deflated(sw.ToString());
+				return ConvertToBase64Deflated(ms);
 			}
 		}
 	}
