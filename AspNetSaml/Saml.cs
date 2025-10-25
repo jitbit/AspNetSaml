@@ -311,7 +311,7 @@ namespace Saml
 					streamInput.CopyTo(deflate);
 				}
 				
-				return Convert.ToBase64String(compressed.GetBuffer(), 0, (int)compressed.Length);
+				return Convert.ToBase64String(compressed.GetBuffer(), 0, (int)compressed.Length, Base64FormattingOptions.None);
 			}
 		}
 
