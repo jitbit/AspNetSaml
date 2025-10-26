@@ -63,8 +63,7 @@ namespace Saml
 
 		public void LoadXmlFromBase64(string response)
 		{
-			UTF8Encoding enc = new UTF8Encoding();
-			LoadXml(enc.GetString(Convert.FromBase64String(response)));
+			LoadXml(Encoding.UTF8.GetString(Convert.FromBase64String(response)));
 		}
 
 		//an XML signature can "cover" not the whole document, but only a part of it
