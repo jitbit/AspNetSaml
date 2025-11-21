@@ -235,6 +235,12 @@ namespace Saml
 			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
 			return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
 		}
+
+		public List<string> GetIntendedAudiences()
+		{
+            XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:Conditions/saml:AudienceRestriction/saml:Audience", _xmlNameSpaceManager);
+            return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
+        }
 	}
 
 	/// <summary>
