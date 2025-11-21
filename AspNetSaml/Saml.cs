@@ -241,6 +241,20 @@ namespace Saml
             XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:Conditions/saml:AudienceRestriction/saml:Audience", _xmlNameSpaceManager);
             return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
         }
+
+        /// <summary>
+        /// Some IdPs set the SessionNotOnOrAfter attribute to inform the SP how long they expect the local session with the SP to be valid for.
+        /// </summary>
+        public DateTime? GetExpectedSessionExpiry()
+		{
+            XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AuthnStatement", _xmlNameSpaceManager);
+            if (node != null && node.Attributes["SessionNotOnOrAfter"] != null) {
+                if (DateTime.TryParse(node.Attributes["SessionNotOnOrAfter"].Value, out var expirationDate)) {
+					return expirationDate;
+				}
+            }
+            return null;
+        }
 	}
 
 	/// <summary>
