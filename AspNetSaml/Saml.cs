@@ -119,15 +119,20 @@ namespace Saml
 			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
 		}
 
+		public virtual DateTime GetExpirationDate()
+		{
+            DateTime expirationDate = DateTime.MaxValue;
+            XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
+            if (node != null && node.Attributes["NotOnOrAfter"] != null) {
+                DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
+            }
+			return expirationDate;
+        }
+
 		protected virtual bool IsExpired()
 		{
-			DateTime expirationDate = DateTime.MaxValue;
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
-			if (node != null && node.Attributes["NotOnOrAfter"] != null)
-			{
-				DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
-			}
-			return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
+			var expirationDate = GetExpirationDate();
+            return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
 		}
 
 		public DateTime? CurrentTime { get; set; } = null; //mostly for unit-testing. STUPID I KNOW, will fix later
@@ -266,12 +271,19 @@ namespace Saml
 			return node?.InnerText;
 		}
 
-		/// <summary>
-		/// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
-		/// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
-		/// effectively bypassing the expiration check which is not relevant for LogoutRequests.
-		/// </summary>
-		protected override bool IsExpired()
+		public override DateTime GetExpirationDate()
+		{
+            // LogoutRequests don't have the standard expiration elements.
+            // Return DateTime.MaxValue to indicate no expiration.
+            return DateTime.MaxValue;
+        }
+
+        /// <summary>
+        /// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
+        /// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
+        /// effectively bypassing the expiration check which is not relevant for LogoutRequests.
+        /// </summary>
+        protected override bool IsExpired()
 		{
 			// LogoutRequests don't have the standard expiration elements.
 			// Return false to ensure the base IsValid() check doesn't fail due to expiration.
