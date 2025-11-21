@@ -66,6 +66,18 @@ namespace Saml
 			LoadXml(Encoding.UTF8.GetString(Convert.FromBase64String(response)));
 		}
 
+		private XmlElement GetAssertionElement()
+		{
+			return _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion", _xmlNameSpaceManager) as XmlElement;
+        }
+
+		public string GetAssertionID()
+		{
+			var assertionElement = GetAssertionElement();
+
+			return assertionElement?.GetAttribute("ID");
+        }
+
 		//an XML signature can "cover" not the whole document, but only a part of it
 		//.NET's built in "CheckSignature" does not cover this case, it will validate to true.
 		//We should check the signature reference, so it "references" the id of the root document element! If not - it's a hack
@@ -83,7 +95,7 @@ namespace Saml
 				return true;
 			else //sometimes its not the "root" doc-element that is being signed, but the "assertion" element
 			{
-				var assertionNode = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion", _xmlNameSpaceManager) as XmlElement;
+				var assertionNode = GetAssertionElement();
 				if (assertionNode != idElement)
 					return false;
 			}
