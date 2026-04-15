@@ -66,6 +66,18 @@ namespace Saml
 			LoadXml(Encoding.UTF8.GetString(Convert.FromBase64String(response)));
 		}
 
+		private XmlElement GetAssertionElement()
+		{
+			return _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion", _xmlNameSpaceManager) as XmlElement;
+        }
+
+		public string GetAssertionID()
+		{
+			var assertionElement = GetAssertionElement();
+
+			return assertionElement?.GetAttribute("ID");
+        }
+
 		//an XML signature can "cover" not the whole document, but only a part of it
 		//.NET's built in "CheckSignature" does not cover this case, it will validate to true.
 		//We should check the signature reference, so it "references" the id of the root document element! If not - it's a hack
@@ -83,7 +95,7 @@ namespace Saml
 				return true;
 			else //sometimes its not the "root" doc-element that is being signed, but the "assertion" element
 			{
-				var assertionNode = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion", _xmlNameSpaceManager) as XmlElement;
+				var assertionNode = GetAssertionElement();
 				if (assertionNode != idElement)
 					return false;
 			}
@@ -119,15 +131,20 @@ namespace Saml
 			return ValidateSignatureReference(signedXml) && signedXml.CheckSignature(_certificate, true) && !IsExpired();
 		}
 
+		public virtual DateTime GetExpirationDate()
+		{
+            DateTime expirationDate = DateTime.MaxValue;
+            XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
+            if (node != null && node.Attributes["NotOnOrAfter"] != null) {
+                DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
+            }
+			return expirationDate;
+        }
+
 		protected virtual bool IsExpired()
 		{
-			DateTime expirationDate = DateTime.MaxValue;
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
-			if (node != null && node.Attributes["NotOnOrAfter"] != null)
-			{
-				DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
-			}
-			return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
+			var expirationDate = GetExpirationDate();
+            return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
 		}
 
 		public DateTime? CurrentTime { get; set; } = null; //mostly for unit-testing. STUPID I KNOW, will fix later
@@ -218,6 +235,26 @@ namespace Saml
 			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:AttributeStatement/saml:Attribute[@Name='" + attr + "']/saml:AttributeValue", _xmlNameSpaceManager);
 			return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
 		}
+
+		public List<string> GetIntendedAudiences()
+		{
+            XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:Conditions/saml:AudienceRestriction/saml:Audience", _xmlNameSpaceManager);
+            return nodes?.Cast<XmlNode>().Select(x => x.InnerText).ToList();
+        }
+
+        /// <summary>
+        /// Some IdPs set the SessionNotOnOrAfter attribute to inform the SP how long they expect the local session with the SP to be valid for.
+        /// </summary>
+        public DateTime? GetExpectedSessionExpiry()
+		{
+            XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:AuthnStatement", _xmlNameSpaceManager);
+            if (node != null && node.Attributes["SessionNotOnOrAfter"] != null) {
+                if (DateTime.TryParse(node.Attributes["SessionNotOnOrAfter"].Value, out var expirationDate)) {
+					return expirationDate;
+				}
+            }
+            return null;
+        }
 	}
 
 	/// <summary>
@@ -266,12 +303,19 @@ namespace Saml
 			return node?.InnerText;
 		}
 
-		/// <summary>
-		/// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
-		/// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
-		/// effectively bypassing the expiration check which is not relevant for LogoutRequests.
-		/// </summary>
-		protected override bool IsExpired()
+		public override DateTime GetExpirationDate()
+		{
+            // LogoutRequests don't have the standard expiration elements.
+            // Return DateTime.MaxValue to indicate no expiration.
+            return DateTime.MaxValue;
+        }
+
+        /// <summary>
+        /// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
+        /// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
+        /// effectively bypassing the expiration check which is not relevant for LogoutRequests.
+        /// </summary>
+        protected override bool IsExpired()
 		{
 			// LogoutRequests don't have the standard expiration elements.
 			// Return false to ensure the base IsValid() check doesn't fail due to expiration.
