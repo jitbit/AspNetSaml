@@ -60,8 +60,9 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 	// 2. Let's read the data - SAML providers usually POST it into the "SAMLResponse" var
 	var samlResponse = new Response(samlCertificate, Request.Form["SAMLResponse"]);
 
-	// 3. DONE!
-	if (samlResponse.IsValid()) //all good?
+	// 3. Validate the response. "audienceEntityId" is your app's EntityID.
+	var audienceEntityId = "http://www.myapp.com";
+	if (samlResponse.IsValid(audienceEntityId)) //all good?
 	{
 		//WOOHOO!!! the user is logged in
 		var username = samlResponse.GetNameID(); //let's get the username
@@ -90,7 +91,7 @@ BLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAHBLAH123543==
 SAML providers usually send more data with their response: username, first/last names etc. Here's how to get it:
 
 ```c#
-if (samlResponse.IsValid())
+if (samlResponse.IsValid("http://www.myapp.com")) //your app's EntityID
 {
 	//WOOHOO!!! user is logged in
 

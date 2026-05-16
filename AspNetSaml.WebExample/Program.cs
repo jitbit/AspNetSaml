@@ -36,7 +36,7 @@ app.MapPost("/SamlConsume", ([FromForm] string samlResponse) =>
 {
 	var saml = new Saml.Response(SAML_CERTIFICATE, samlResponse);
 
-	if (saml.IsValid()) //all good?
+	if (saml.IsValid(ENTITY_ID)) //all good?
 	{
 		return Results.Content("Success! Logged in as user " + saml.GetNameID(), "text/html");
 	}

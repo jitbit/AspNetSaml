@@ -103,11 +103,7 @@ namespace Saml
 			return manager;
 		}
 
-		/// <summary>
-		/// Checks the validity of SAML response (validate signature, check expiration date etc)
-		/// </summary>
-		/// <returns></returns>
-		public bool IsValid()
+		protected bool ValidateSignatureAndExpiration()
 		{
 			XmlNodeList nodeList = _xmlDoc.SelectNodes("//ds:Signature", _xmlNameSpaceManager);
 
@@ -138,6 +134,30 @@ namespace Saml
 		public Response(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
 		public Response(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
+
+		/// <summary>
+		/// Checks the validity of SAML response (validate signature, check expiration date etc)
+		/// </summary>
+		/// <returns></returns>
+		[Obsolete("Obsolete. Use IsValid(string audienceEntityId) to also validate the SAML Audience against your SP EntityID. This method will be removed in the future.")]
+		public bool IsValid() => ValidateSignatureAndExpiration();
+
+		/// <summary>
+		/// Checks the validity of SAML response (validate signature, check expiration date, verifies it was issued for the expected SP EntityID)
+		/// </summary>
+		public bool IsValid(string audienceEntityId)
+		{
+			return ValidateSignatureAndExpiration() && ValidateAudience(audienceEntityId);
+		}
+
+		protected bool ValidateAudience(string audienceEntityId)
+		{
+			if (string.IsNullOrWhiteSpace(audienceEntityId))
+				return false;
+
+			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:Conditions/saml:AudienceRestriction/saml:Audience", _xmlNameSpaceManager);
+			return nodes != null && nodes.Cast<XmlNode>().Any(x => string.Equals(x.InnerText, audienceEntityId, StringComparison.Ordinal));
+		}
 
 		/// <summary>
 		/// returns the User's login
@@ -229,6 +249,11 @@ namespace Saml
 
 		public SignoutResponse(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
 
+		/// <summary>
+		/// Checks the validity of SAML logout response (validate signature).
+		/// </summary>
+		public bool IsValid() => ValidateSignatureAndExpiration();
+
 		public string GetLogoutStatus()
 		{
 			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:LogoutResponse/samlp:Status/samlp:StatusCode", _xmlNameSpaceManager);
@@ -244,6 +269,11 @@ namespace Saml
 		public IdpLogoutRequest(string certificateStr, string responseString = null) : base(certificateStr, responseString) { }
 
 		public IdpLogoutRequest(byte[] certificateBytes, string responseString = null) : base(certificateBytes, responseString) { }
+
+		/// <summary>
+		/// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
+		/// </summary>
+		public bool IsValid() => ValidateSignatureAndExpiration();
 
 		/// <summary>
 		/// Gets the NameID from the IdP-initiated LogoutRequest.
@@ -267,8 +297,7 @@ namespace Saml
 		}
 
 		/// <summary>
-		/// Checks the validity of the SAML IdP-initiated LogoutRequest (validate signature).
-		/// This class relies on the base IsValid() method but overrides IsExpired() to always return false,
+		/// This class relies on the base signature validation but overrides IsExpired() to always return false,
 		/// effectively bypassing the expiration check which is not relevant for LogoutRequests.
 		/// </summary>
 		protected override bool IsExpired()
