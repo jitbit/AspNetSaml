@@ -352,15 +352,6 @@ namespace Saml
 		/// </summary>
 		public bool ForceAuthn { get; set; }
 
-		[Obsolete("Obsolete, will be removed")]
-		public enum AuthRequestFormat
-		{
-			Base64 = 1
-		}
-
-		[Obsolete("Obsolete, will be removed, use GetRequest()")]
-		public string GetRequest(AuthRequestFormat format) => GetRequest();
-
 		/// <summary>
 		/// returns SAML request as compressed and Base64 encoded XML. You don't need this method
 		/// </summary>
