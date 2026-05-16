@@ -156,7 +156,15 @@ namespace Saml
 				return false;
 
 			XmlNodeList nodes = _xmlDoc.SelectNodes("/samlp:Response/saml:Assertion[1]/saml:Conditions/saml:AudienceRestriction/saml:Audience", _xmlNameSpaceManager);
-			return nodes != null && nodes.Cast<XmlNode>().Any(x => string.Equals(x.InnerText, audienceEntityId, StringComparison.Ordinal));
+			if (nodes == null) return true;
+
+			var audiences = nodes.Cast<XmlNode>()
+				.Select(x => x.InnerText)
+				.Where(x => !string.IsNullOrWhiteSpace(x))
+				.ToList();
+
+			return audiences.Count == 0 // no audience restriction from IdP, so we consider it valid. Tested with real IdP's like "OneLogin" etc. They just don't send it. Duh.
+				|| audiences.Any(x => string.Equals(x, audienceEntityId, StringComparison.Ordinal));
 		}
 
 		/// <summary>

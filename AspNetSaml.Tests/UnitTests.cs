@@ -91,6 +91,43 @@ MIIDBzCCAe+gAwIBAgIJcp0xLOhRU0fTMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNVBAMTFmRldi10eWo3
 		}
 
 		[TestMethod]
+		public void TestAudienceValidationAllowsEmptyAudienceRestriction()
+		{
+			var samlresp = new TestResponse(GetTestCertificate());
+
+			samlresp.LoadXml(@"<samlp:Response xmlns:samlp=""urn:oasis:names:tc:SAML:2.0:protocol"" xmlns:saml=""urn:oasis:names:tc:SAML:2.0:assertion"">
+  <saml:Assertion>
+    <saml:Conditions>
+      <saml:AudienceRestriction>
+        <saml:Audience />
+      </saml:AudienceRestriction>
+    </saml:Conditions>
+  </saml:Assertion>
+</samlp:Response>");
+
+			Assert.IsTrue(samlresp.IsAudienceValid("WebApp3"));
+		}
+
+		[TestMethod]
+		public void TestAudienceValidationRejectsNonMatchingAudience()
+		{
+			var samlresp = new TestResponse(GetTestCertificate());
+
+			samlresp.LoadXml(@"<samlp:Response xmlns:samlp=""urn:oasis:names:tc:SAML:2.0:protocol"" xmlns:saml=""urn:oasis:names:tc:SAML:2.0:assertion"">
+  <saml:Assertion>
+    <saml:Conditions>
+      <saml:AudienceRestriction>
+        <saml:Audience>OtherApp</saml:Audience>
+        <saml:Audience />
+      </saml:AudienceRestriction>
+    </saml:Conditions>
+  </saml:Assertion>
+</samlp:Response>");
+
+			Assert.IsFalse(samlresp.IsAudienceValid("WebApp3"));
+		}
+
+		[TestMethod]
 		public void TestSamlResponseValidatorAdvanced()
 		{
 			var cert = @"-----BEGIN CERTIFICATE-----
@@ -184,6 +221,23 @@ MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2Fs
 				bytes[i] = (byte)st[i];
 			}
 			return bytes;
+		}
+
+		private static string GetTestCertificate()
+		{
+			return @"-----BEGIN CERTIFICATE-----
+MIICajCCAdOgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBSMQswCQYDVQQGEwJ1czETMBEGA1UECAwKQ2FsaWZvcm5pYTEVMBMGA1UECgwMT25lbG9naW4gSW5jMRcwFQYDVQQDDA5zcC5leGFtcGxlLmNvbTAeFw0xNDA3MTcxNDEyNTZaFw0xNTA3MTcxNDEyNTZaMFIxCzAJBgNVBAYTAnVzMRMwEQYDVQQIDApDYWxpZm9ybmlhMRUwEwYDVQQKDAxPbmVsb2dpbiBJbmMxFzAVBgNVBAMMDnNwLmV4YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDZx+ON4IUoIWxgukTb1tOiX3bMYzYQiwWPUNMp+Fq82xoNogso2bykZG0yiJm5o8zv/sd6pGouayMgkx/2FSOdc36T0jGbCHuRSbtia0PEzNIRtmViMrt3AeoWBidRXmZsxCNLwgIV6dn2WpuE5Az0bHgpZnQxTKFek0BMKU/d8wIDAQABo1AwTjAdBgNVHQ4EFgQUGHxYqZYyX7cTxKVODVgZwSTdCnwwHwYDVR0jBBgwFoAUGHxYqZYyX7cTxKVODVgZwSTdCnwwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQ0FAAOBgQByFOl+hMFICbd3DJfnp2Rgd/dqttsZG/tyhILWvErbio/DEe98mXpowhTkC04ENprOyXi7ZbUqiicF89uAGyt1oqgTUCD1VsLahqIcmrzgumNyTwLGWo17WDAa1/usDhetWAMhgzF/Cnf5ek0nK00m0YZGyc4LzgD0CROMASTWNg==
+-----END CERTIFICATE-----";
+		}
+
+		private class TestResponse : Saml.Response
+		{
+			public TestResponse(string certificateStr) : base(certificateStr) { }
+
+			public bool IsAudienceValid(string audienceEntityId)
+			{
+				return ValidateAudience(audienceEntityId);
+			}
 		}
 
 		[TestMethod]
