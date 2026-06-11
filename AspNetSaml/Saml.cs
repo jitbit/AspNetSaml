@@ -139,7 +139,6 @@ namespace Saml
 		/// Checks the validity of SAML response (validate signature, check expiration date etc)
 		/// </summary>
 		/// <returns></returns>
-		[Obsolete("Obsolete. Use IsValid(string audienceEntityId) to also validate the SAML Audience against your SP EntityID. This method will be removed in the future.")]
 		public bool IsValid() => ValidateSignatureAndExpiration();
 
 		/// <summary>
