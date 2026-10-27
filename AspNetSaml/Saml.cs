@@ -117,16 +117,35 @@ namespace Saml
 
 		protected virtual bool IsExpired()
 		{
-			DateTime expirationDate = DateTime.MaxValue;
-			XmlNode node = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
-			if (node != null && node.Attributes["NotOnOrAfter"] != null)
-			{
-				DateTime.TryParse(node.Attributes["NotOnOrAfter"].Value, out expirationDate);
-			}
-			return (CurrentTime ?? DateTime.UtcNow) > expirationDate.ToUniversalTime();
+			var now = CurrentTime ?? DateTime.UtcNow;
+
+			XmlNode subjectConfirmationData = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData", _xmlNameSpaceManager);
+			XmlNode conditions = _xmlDoc.SelectSingleNode("/samlp:Response/saml:Assertion[1]/saml:Conditions", _xmlNameSpaceManager);
+
+			//every time-check is skipped if the attribute is missing (some IdPs don't send them), but if it's present - it's enforced
+			return IsTimeConditionViolated(subjectConfirmationData, "NotOnOrAfter", t => now > t + ClockSkew)
+				|| IsTimeConditionViolated(conditions, "NotOnOrAfter", t => now > t + ClockSkew)
+				|| IsTimeConditionViolated(conditions, "NotBefore", t => now < t - ClockSkew);
+		}
+
+		private static bool IsTimeConditionViolated(XmlNode node, string attributeName, Func<DateTime, bool> isViolated)
+		{
+			var value = node?.Attributes?[attributeName]?.Value;
+			if (value == null)
+				return false;
+
+			if (!DateTime.TryParse(value, out DateTime time)) //present but unparseable - fail closed
+				return true;
+
+			return isViolated(time.ToUniversalTime());
 		}
 
 		public DateTime? CurrentTime { get; set; } = null; //mostly for unit-testing. STUPID I KNOW, will fix later
+
+		/// <summary>
+		/// Tolerance for clock difference between IdP and our server when checking NotBefore/NotOnOrAfter. Default is 3 minutes.
+		/// </summary>
+		public TimeSpan ClockSkew { get; set; } = TimeSpan.FromMinutes(3);
 	}
 
 	public class Response : BaseSamlMessage
